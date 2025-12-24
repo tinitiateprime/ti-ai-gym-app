@@ -1,0 +1,36 @@
+[
+  {
+    "fullName": "ram",
+    "mobile": "9652548212",
+    "email": "ram@gym.com",
+    "password": "741852",
+    "roleKey": "TRAINER",
+    "createdAt": "2025-12-19T07:20:03.992Z"
+  },
+  {
+    "fullName": "esh",
+    "mobile": "789456130",
+    "email": "esh@gmail.com",
+    "password": "123456",
+    "roleKey": "MEMBER",
+    "createdAt": "2025-12-19T09:30:37.279Z"
+  },
+
+  {
+    "fullName": "hello",
+    "mobile": "7894561230",
+    "email": "hello@gym.com",
+    "password": "123456789",
+    "roleKey": "SELLER",
+    "createdAt": "2025-12-21T16:54:26.581Z"
+  },
+  {
+    "fullName": "hey",
+    "mobile": "7896321450",
+    "email": "hey@gmail.com",
+    "password": "741852",
+    "roleKey": "OWNER",
+    "createdAt": "2025-12-21T17:41:30.831Z"
+  }
+]
+

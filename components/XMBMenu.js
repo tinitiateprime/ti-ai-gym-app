@@ -29,6 +29,7 @@ function throttle(fn, wait) {
 
 const initialSections = [
   { key: '', icon: '', label: '' },
+  { key: '', icon: '', label: '' },
   { key: 'Home', icon: 'home', label: 'Home', subItems: [
       { key: 'News', label: 'News', icon: 'newspaper' },
       { key: 'Offers', label: 'Offers', icon: 'tags' },
@@ -249,7 +250,7 @@ export default function XMBMenu() {
                 <View style={styles.iconWrapper}>
                   <FontAwesome5 name={section.icon} size={30 * (iconScales[section.key] || 1)} color="white" />
                   <Text style={[styles.label, activeSection === section.key && styles.activeLabel]}>{section.label}</Text>
-                </View>
+                </View> 
               </TouchableOpacity>
               {shouldShowSubItems(section.key) && section.subItems && (
                 <View style={styles.inlineSubItems}>
@@ -257,11 +258,11 @@ export default function XMBMenu() {
                     <TouchableOpacity key={idx} style={styles.inlineSubItem} onPress={() => handleOpenSection(subItem.key || subItem.label)}>
                       <FontAwesome5 name={subItem.icon} size={16} color="#bbb" />
                       <Text style={styles.inlineSubItemText}>{subItem.label}</Text>
-                    </TouchableOpacity>
+                    </TouchableOpacity> 
                   ))}
-                </View>
+                </View>  
               )}
-            </View>
+            </View> 
           ))}
         </ScrollView>
       </View>

@@ -1,0 +1,57 @@
+[
+  {
+    "email": "owner1@gym.com",
+    "password": "owner123",
+    "fullName": "Owner One",
+    "roleId": "OWNER",
+    "roleLabel": "Gym Owner",
+    "homeRoute": "GymOwner",
+    "isPaid": true
+  }, 
+   
+  { 
+    "email": "trainer1@gym.com",
+    "password": "trainer123",
+    "fullName": "Karthick",
+    "roleId": "TRAINER",
+    "roleLabel": "Trainer",
+    "homeRoute": "TrainerScreen",
+    "isPaid": true
+  },  
+
+  {
+    "email": "member1@gym.com",
+    "password": "member123",
+    "fullName": "ravi",
+    "roleId": "MEMBER",
+    "roleLabel": "Member",
+    "homeRoute": "DailyTips",
+    "isPaid": false
+  },
+  
+   {
+    "email": "member2@gym.com",
+    "password": "member123",
+    "fullName": "sharma", 
+    "roleId": "MEMBER",
+    "roleLabel": "Member",
+    "homeRoute": "DailyTips",
+    "isPaid": true
+  },
+  
+  {
+    "email": "seller1@gym.com",
+    "password": "seller123",
+    "fullName": "Sai",
+    "roleId": "SELLER",
+    "roleLabel": "Marketplace Seller",
+    "homeRoute": "MarketplaceSeller",
+    "isPaid": true
+  }
+]
+
+
+
+
+
+

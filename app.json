@@ -7,30 +7,52 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash_icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff",
-      "jsEngine": "hermes"
+      "backgroundColor": "#ffffff"
     },
+
+    "plugins": [
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "This app requires your location to show fitness routes and nearby areas."
+        }
+      ]
+    ],
+
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.xmb.nativeapp",
+
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "This app uses your location for fitness recommendations and maps.",
+        "NSLocationAlwaysAndWhenInUseUsageDescription": "Location is needed to provide accurate route and wellness tracking.",
+        "UIBackgroundModes": ["location"]
+      }
     },
+
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/adaptive_icon.png",
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
       "package": "com.anonymous.xmbnativeapp"
     },
+
     "web": {
       "favicon": "./assets/favicon.png"
     },
+
     "extra": {
       "eas": {
-        "projectId": "425a7728-e101-4282-9fce-2166df2e20d6"
+        "projectId": "b8e2913d-0392-402f-81bf-aee11b659a63"
       }
-    }
+    },
+
+    "owner": "eswar-reddy"
   }
 }

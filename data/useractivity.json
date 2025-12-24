@@ -1,0 +1,111 @@
+
+[
+  {
+    "email": "member1@gym.com",
+    "name": "Ram",
+    "fullName": "Ram",
+    "role": "member",
+    "isPaid": true,
+    "trainerEmail": "trainer1@gym.com",
+    "workoutName": "Weight Training",
+    "membershipStart": "2025-01-01",
+    "membershipEnd": "2025-12-30",
+    "months": [
+      { "month": "January 2025", "days": 18, "hours": 320, "calories": 3200 },
+      { "month": "February 2025", "days": 20, "hours": 312, "calories": 3500 },
+      { "month": "March 2025", "days": 16, "hours": 228, "calories": 2900 },
+      { "month": "April 2025", "days": 22, "hours": 126, "calories": 3800 },
+      { "month": "May 2025", "days": 15, "hours": 225, "calories": 2600 },
+      { "month": "June 2025", "days": 19, "hours": 150, "calories": 3400 },
+      { "month": "July 2025", "days": 23, "hours": 160, "calories": 10000 },
+      { "month": "August 2025", "days": 30, "hours": 250, "calories": 20000 },
+      { "month": "September 2025", "days": 22, "hours": 28, "calories": 25000 },
+      { "month": "November 2025", "days": 15, "hours": 10, "calories": 10000 },
+      { "month": "December 2025", "days": 28, "hours": 100, "calories": 3200 }
+    ]
+  },
+
+  {
+    "email": "member2@gym.com",
+    "name": "Sharma",
+    "fullName": "Sharma",
+    "role": "member",
+    "isPaid": true,
+    "membershipStart": "2025-01-01",
+    "membershipEnd": "2025-12-22",
+    "trainerEmail": "trainer2@gym.com",
+    "workoutName": "Yoga",
+    "months": [
+      { "month": "January 2025", "days": 18, "hours": 15, "calories": 4200 }
+    ]
+  },
+
+  {
+    "email": "seller1@gym.com",
+    "name": "Sai",
+    "fullName": "Sai",
+    "role": "seller",
+    "isPaid": false,
+    "months": [
+      { "month": "January 2025", "days": 10, "hours": 10, "calories": 4590 }
+    ]
+  },
+
+  {
+    "email": "trainer1@gym.com",
+    "name": "Karthick",
+    "fullName": "Karthick",
+    "role": "trainer",
+    "specialization": "Cardio Trainer",
+    "isPaid": true,
+    "membershipStart": "2025-02-01",
+    "membershipEnd": "2025-12-31",
+    "months": [
+      { "month": "January 2025", "days": 22, "hours": 15 },
+      { "month": "February 2025", "days": 20, "hours": 218 },
+      { "month": "March 2025", "days": 16, "hours": 128 }
+    ]
+  },
+
+  {
+    "email": "trainer2@gym.com",
+    "name": "Anita",
+    "fullName": "Anita Reddy",
+    "role": "trainer",
+    "specialization": "Yoga Trainer",
+    "isPaid": true,
+    "months": [
+      { "month": "January 2025", "days": 25, "hours": 180 },
+      { "month": "February 2025", "days": 20, "hours": 160 }
+    ]
+  },
+
+  {
+    "email": "trainer3@gym.com",
+    "name": "Suresh",
+    "fullName": "Suresh Kumar",
+    "role": "trainer",
+    "specialization": "Strength Trainer",
+    "isPaid": true,
+    "months": [
+      { "month": "January 2025", "days": 18, "hours": 200 }
+    ]
+  },
+
+  {
+    "email": "trainer4@gym.com",
+    "name": "Megha",
+    "fullName": "Megha",
+    "role": "trainer",
+    "specialization": "Zumba Trainer",
+    "isPaid": true, 
+    "months": [
+      { "month": "January 2025", "days": 22, "hours": 140 },
+      { "month": "February 2025", "days": 18, "hours": 120 }
+    ]
+  }
+]
+
+
+
+
