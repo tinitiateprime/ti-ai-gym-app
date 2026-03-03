@@ -10,7 +10,6 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 
 export default function MemberWorkoutTrackerScreen({ navigation }) {
-  // Example workout data (replace with API fetch)
   const [workouts, setWorkouts] = useState([
     { id: 1, day: "Monday", title: "Chest & Triceps", completed: false },
     { id: 2, day: "Tuesday", title: "Back & Biceps", completed: true },
@@ -38,45 +37,52 @@ export default function MemberWorkoutTrackerScreen({ navigation }) {
         <Ionicons name="arrow-back" size={26} color="#fff" />
       </TouchableOpacity>
 
-      <ScrollView contentContainerStyle={styles.container}>
-        {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Workout Tracker</Text>
-          <Text style={styles.headerSub}>
-            Track and complete your daily workouts
-          </Text>
-        </View>
+      {/* Header */}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Workout Tracker</Text>
+        <Text style={styles.headerSub}>
+          Track and complete your daily workouts
+        </Text>
+      </View>
 
-        {/* Workout List */}
+      {/* Workout List */}
+      <ScrollView contentContainerStyle={styles.container}>
         {workouts.map((workout) => (
           <View key={workout.id} style={styles.card}>
-            <View>
-              <Text style={styles.day}>{workout.day}</Text>
-              <Text
-                style={[
-                  styles.title,
-                  workout.completed
-                    ? { textDecorationLine: "line-through", color: "#64748b" }
-                    : {},
-                ]}
-              >
-                {workout.title}
-              </Text>
+            <View style={styles.cardInfo}>
+              <Ionicons
+                name="barbell-outline"
+                size={26}
+                color="#4e9efc"
+                style={{ marginRight: 12 }}
+              />
+              <View>
+                <Text style={styles.day}>{workout.day}</Text>
+                <Text
+                  style={[
+                    styles.title,
+                    workout.completed && styles.completedText,
+                  ]}
+                >
+                  {workout.title}
+                </Text>
+              </View>
             </View>
+
             <TouchableOpacity
               style={[
                 styles.statusBtn,
-                workout.completed ? styles.completed : styles.pending,
+                workout.completed ? styles.doneBtn : styles.pendingBtn,
               ]}
               onPress={() => toggleComplete(workout.id)}
             >
               <Ionicons
                 name={workout.completed ? "checkmark-done" : "ellipse-outline"}
-                size={20}
+                size={18}
                 color="#fff"
               />
               <Text style={styles.statusText}>
-                {workout.completed ? "Completed" : "Pending"}
+                {workout.completed ? "Done" : "Pending"}
               </Text>
             </TouchableOpacity>
           </View>
@@ -88,7 +94,6 @@ export default function MemberWorkoutTrackerScreen({ navigation }) {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: "#f8fafc" },
-  container: { padding: 20, paddingBottom: 50 },
 
   backButton: {
     position: "absolute",
@@ -97,9 +102,26 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
 
-  header: { marginBottom: 20 },
-  headerTitle: { fontSize: 22, fontWeight: "700", color: "#020617" },
-  headerSub: { fontSize: 14, color: "#64748b", marginTop: 4 },
+  header: {
+    paddingVertical: 18,
+    paddingHorizontal: 20,
+    backgroundColor: "#020617",
+  },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#fff",
+  },
+  headerSub: {
+    fontSize: 14,
+    color: "#cbd5f5",
+    marginTop: 4,
+  },
+
+  container: {
+    padding: 16,
+    paddingBottom: 80,
+  },
 
   card: {
     flexDirection: "row",
@@ -108,21 +130,47 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 16,
     borderRadius: 14,
-    marginBottom: 14,
-    elevation: 3,
+    marginBottom: 12,
+    elevation: 2,
   },
 
-  day: { fontSize: 14, color: "#94a3b8", marginBottom: 4 },
-  title: { fontSize: 16, fontWeight: "700", color: "#020617" },
+  cardInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  day: {
+    fontSize: 13,
+    color: "#64748b",
+    marginBottom: 2,
+  },
+  title: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#020617",
+  },
+  completedText: {
+    textDecorationLine: "line-through",
+    color: "#94a3b8",
+  },
 
   statusBtn: {
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     borderRadius: 20,
   },
-  completed: { backgroundColor: "#10b981" },
-  pending: { backgroundColor: "#f59e0b" },
-  statusText: { color: "#fff", fontWeight: "700", marginLeft: 6, fontSize: 13 },
+  pendingBtn: {
+    backgroundColor: "#f59e0b",
+  },
+  doneBtn: {
+    backgroundColor: "#10b981",
+  },
+  statusText: {
+    color: "#fff",
+    fontWeight: "700",
+    marginLeft: 6,
+    fontSize: 13,
+  },
 });

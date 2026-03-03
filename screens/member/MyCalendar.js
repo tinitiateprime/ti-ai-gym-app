@@ -1,9 +1,16 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+  ScrollView,
+} from "react-native";
 import { Calendar, LocaleConfig } from "react-native-calendars";
 import { Ionicons } from "@expo/vector-icons";
 
-// Optional: set calendar locale
+/* Locale */
 LocaleConfig.locales["en"] = {
   monthNames: [
     "January","February","March","April","May","June",
@@ -24,90 +31,124 @@ export default function MemberCalendarScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Back Button */}
+      {/* Back */}
       <TouchableOpacity
         style={styles.backButton}
-        onPress={() => navigation.navigate("MemberHome")}
+        onPress={() => navigation.goBack()}
       >
-        <Ionicons name="arrow-back" size={26} color="#fff" />
+        <Ionicons name="arrow-back-outline" size={26} color="#e5e7eb" />
       </TouchableOpacity>
 
       {/* Header */}
       <View style={styles.header}>
+        <Ionicons name="calendar-outline" size={38} color="#38bdf8" />
         <Text style={styles.headerTitle}>My Calendar</Text>
-        <Text style={styles.headerSub}>Track your workouts & schedules</Text>
+        <Text style={styles.headerSub}>
+          Plan workouts & track schedules
+        </Text>
       </View>
 
       <ScrollView contentContainerStyle={styles.container}>
         {/* Calendar */}
         <Calendar
-          style={styles.calendar}
           onDayPress={handleDayPress}
           markedDates={{
-            [selectedDate]: { selected: true, selectedColor: "#4e9efc" },
+            [selectedDate]: {
+              selected: true,
+              selectedColor: "#38bdf8",
+              selectedTextColor: "#020617",
+            },
           }}
+          style={styles.calendar}
           theme={{
-            backgroundColor: "#f8fafc",
-            calendarBackground: "#fff",
-            textSectionTitleColor: "#020617",
-            todayTextColor: "#4e9efc",
-            dayTextColor: "#020617",
-            textDisabledColor: "#d9e1e8",
-            monthTextColor: "#020617",
-            arrowColor: "#4e9efc",
-            indicatorColor: "#4e9efc",
+            backgroundColor: "#0f172a",
+            calendarBackground: "#0f172a",
+            textSectionTitleColor: "#94a3b8",
+            todayTextColor: "#38bdf8",
+            dayTextColor: "#e5e7eb",
+            textDisabledColor: "#475569",
+            monthTextColor: "#f8fafc",
+            arrowColor: "#38bdf8",
+            indicatorColor: "#38bdf8",
             textDayFontWeight: "600",
-            textMonthFontWeight: "700",
+            textMonthFontWeight: "800",
             textDayHeaderFontWeight: "600",
-            textDayFontSize: 16,
+            textDayFontSize: 15,
             textMonthFontSize: 18,
-            textDayHeaderFontSize: 14,
+            textDayHeaderFontSize: 13,
           }}
         />
 
-        {/* Selected date info */}
-        {selectedDate ? (
-          <View style={styles.infoBox}>
-            <Text style={styles.infoText}>Selected Date:</Text>
-            <Text style={styles.infoDate}>{selectedDate}</Text>
-            <TouchableOpacity style={styles.addButton}>
-              <Ionicons name="add-circle-outline" size={22} color="#fff" />
-              <Text style={styles.addText}>Add Workout</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={styles.infoBox}>
-            <Text style={styles.infoText}>Select a date to view workouts</Text>
-          </View>
-        )}
+        {/* Info Card */}
+        <View style={styles.infoCard}>
+          {selectedDate ? (
+            <>
+              <Ionicons
+                name="checkmark-circle-outline"
+                size={26}
+                color="#22c55e"
+              />
+              <Text style={styles.infoTitle}>Selected Date</Text>
+              <Text style={styles.infoDate}>{selectedDate}</Text>
+
+              <TouchableOpacity style={styles.addButton}>
+                <Ionicons
+                  name="add-circle-outline"
+                  size={22}
+                  color="#020617"
+                />
+                <Text style={styles.addText}>Add Workout</Text>
+              </TouchableOpacity>
+            </>
+          ) : (
+            <>
+              <Ionicons
+                name="information-circle-outline"
+                size={26}
+                color="#38bdf8"
+              />
+              <Text style={styles.infoHint}>
+                Select a date to view or add workouts
+              </Text>
+            </>
+          )}
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#f8fafc" },
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#020617",
+  },
 
   backButton: {
     position: "absolute",
-    top: 40,
+    top: 20,
     left: 20,
     zIndex: 10,
   },
 
   header: {
-    paddingVertical: 18,
-    paddingHorizontal: 20,
-    backgroundColor: "#020617",
+    alignItems: "center",
+    paddingTop: 30,
+    paddingBottom: 24,
+    borderBottomWidth: 1,
+    borderBottomColor: "#1e293b",
   },
+
   headerTitle: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#fff",
+    fontSize: 24,
+    fontWeight: "800",
+    color: "#f8fafc",
+    marginTop: 8,
   },
+
   headerSub: {
     fontSize: 14,
-    color: "#cbd5f5",
+    color: "#94a3b8",
     marginTop: 4,
   },
 
@@ -117,27 +158,55 @@ const styles = StyleSheet.create({
   },
 
   calendar: {
-    borderRadius: 16,
-    elevation: 3,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "#1e293b",
+    marginBottom: 24,
   },
 
-  infoBox: {
-    marginTop: 24,
-    backgroundColor: "#4e9efc",
-    borderRadius: 16,
+  infoCard: {
+    backgroundColor: "#0f172a",
+    borderRadius: 20,
     padding: 20,
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#1e293b",
   },
-  infoText: { color: "#fff", fontSize: 16, fontWeight: "600", marginBottom: 6 },
-  infoDate: { color: "#fff", fontSize: 20, fontWeight: "700", marginBottom: 12 },
+
+  infoTitle: {
+    color: "#94a3b8",
+    fontSize: 13,
+    marginTop: 8,
+  },
+
+  infoDate: {
+    color: "#f8fafc",
+    fontSize: 20,
+    fontWeight: "800",
+    marginVertical: 10,
+  },
+
+  infoHint: {
+    color: "#94a3b8",
+    fontSize: 15,
+    marginTop: 10,
+    textAlign: "center",
+  },
 
   addButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#020617",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 12,
+    backgroundColor: "#38bdf8",
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 14,
+    marginTop: 14,
+    gap: 8,
   },
-  addText: { color: "#fff", fontWeight: "700", marginLeft: 8 },
+
+  addText: {
+    color: "#020617",
+    fontWeight: "800",
+    fontSize: 15,
+  },
 });

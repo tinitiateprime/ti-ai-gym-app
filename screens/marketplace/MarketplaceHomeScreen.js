@@ -1,4 +1,6 @@
-import React, { useEffect } from "react";
+
+
+import React, { useEffect, useRef } from "react";
 import {
   Text,
   TouchableOpacity,
@@ -6,6 +8,7 @@ import {
   ScrollView,
   View,
   BackHandler,
+  Animated,
 } from "react-native";
 import { Ionicons, MaterialIcons, FontAwesome5 } from "@expo/vector-icons";
 
@@ -29,94 +32,231 @@ export default function MarketplaceHomeScreen({ navigation }) {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.header}>🏪 Marketplace Dashboard</Text>
-      <Text style={styles.subHeader}>Manage your products, services & more</Text>
+      {/* HEADER */}
+      <Text style={styles.header}>💪 Marketplace Gym</Text>
+      <Text style={styles.subHeader}>Power your fitness business</Text>
 
-      <Card
+      {/* STATS */}
+      <View style={styles.statsRow}>
+        <StatCard title="₹12.5K" label="Revenue" />
+        <StatCard title="38" label="Orders" />
+        <StatCard title="12" label="Services" />
+      </View>
+
+      {/* MENU */}
+      <GymCard
         title="My Profile"
-        icon={<Ionicons name="person-circle-outline" size={28} color="#4e9efc" />}
+        subtitle="Personal & business info"
+        icon="person"
         onPress={() => navigation.navigate("MarketplaceProfile")}
       />
 
-      <Card
+      <GymCard
         title="My Services"
-        icon={<MaterialIcons name="miscellaneous-services" size={28} color="#4e9efc" />}
+        subtitle="Training & plans"
+        icon="fitness-center"
         onPress={() => navigation.navigate("MarketplaceServices")}
       />
 
-      <Card
+      <GymCard
         title="My Products"
-        icon={<FontAwesome5 name="box-open" size={28} color="#4e9efc" />}
+        subtitle="Supplements & gear"
+        icon="box-open"
+        isFA
         onPress={() => navigation.navigate("MarketplaceProducts")}
       />
 
-      <Card
-        title="My Payments"
-        icon={<Ionicons name="card-outline" size={28} color="#4e9efc" />}
+      <GymCard
+        title="Payments"
+        subtitle="Income & history"
+        icon="card"
         onPress={() => navigation.navigate("MarketplacePayments")}
       />
 
-      <Card
-        title="My Notifications"
-        icon={<Ionicons name="notifications-outline" size={28} color="#4e9efc" />}
+      <GymCard
+        title="Notifications"
+        subtitle="Alerts & updates"
+        icon="notifications"
         onPress={() => navigation.navigate("MarketplaceNotifications")}
       />
+
+      {/* QUICK ACTION */}
+      <TouchableOpacity
+        style={styles.quickAction}
+        onPress={() => alert("Add New Service")}
+      >
+        <Ionicons name="add-circle" size={22} color="#020617" />
+        <Text style={styles.quickText}>Add New Service</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
 
-function Card({ title, icon, onPress }) {
+/* ---------------- STAT CARD ---------------- */
+function StatCard({ title, label }) {
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
-      <View style={styles.cardContent}>
-        {icon}
-        <Text style={styles.cardText}>{title}</Text>
-      </View>
-      <Ionicons name="chevron-forward" size={22} color="#fff" />
-    </TouchableOpacity>
+    <View style={styles.statCard}>
+      <Text style={styles.statValue}>{title}</Text>
+      <Text style={styles.statLabel}>{label}</Text>
+    </View>
   );
 }
 
+/* ---------------- GYM CARD ---------------- */
+function GymCard({ title, subtitle, icon, onPress, isFA }) {
+  const scale = useRef(new Animated.Value(1)).current;
+
+  const pressIn = () => {
+    Animated.spring(scale, {
+      toValue: 0.96,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const pressOut = () => {
+    Animated.spring(scale, {
+      toValue: 1,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  return (
+    <Animated.View style={{ transform: [{ scale }] }}>
+      <TouchableOpacity
+        style={styles.card}
+        activeOpacity={0.9}
+        onPressIn={pressIn}
+        onPressOut={pressOut}
+        onPress={onPress}
+      >
+        <View style={styles.left}>
+          <View style={styles.iconBox}>
+            {isFA ? (
+              <FontAwesome5 name={icon} size={20} color="#22c55e" />
+            ) : (
+              <MaterialIcons name={icon} size={24} color="#22c55e" />
+            )}
+          </View>
+
+          <View>
+            <Text style={styles.cardTitle}>{title}</Text>
+            <Text style={styles.cardSub}>{subtitle}</Text>
+          </View>
+        </View>
+
+        <Ionicons name="chevron-forward" size={22} color="#22c55e" />
+      </TouchableOpacity>
+    </Animated.View>
+  );
+}
+
+/* ---------------- STYLES ---------------- */
 const styles = StyleSheet.create({
   container: {
     padding: 20,
     backgroundColor: "#020617",
     flexGrow: 1,
   },
+
   header: {
-    fontSize: 28,
-    fontWeight: "800",
-    color: "#fff",
-    marginBottom: 4,
+    fontSize: 30,
+    fontWeight: "900",
+    color: "#22c55e",
   },
+
   subHeader: {
     fontSize: 14,
     color: "#94a3b8",
     marginBottom: 20,
   },
+
+  /* STATS */
+  statsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 25,
+  },
+
+  statCard: {
+    flex: 1,
+    backgroundColor: "#052e16",
+    marginHorizontal: 4,
+    padding: 14,
+    borderRadius: 14,
+    alignItems: "center",
+  },
+
+  statValue: {
+    color: "#22c55e",
+    fontSize: 18,
+    fontWeight: "800",
+  },
+
+  statLabel: {
+    color: "#94a3b8",
+    fontSize: 12,
+    marginTop: 4,
+  },
+
+  /* CARDS */
   card: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: "#1e293b",
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 14,
-    marginBottom: 14,
-    elevation: 3,
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 3 },
+    backgroundColor: "#020617",
+    borderRadius: 18,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: "#1f2933",
+    elevation: 6,
   },
-  cardContent: {
+
+  left: {
     flexDirection: "row",
     alignItems: "center",
     gap: 14,
   },
-  cardText: {
+
+  iconBox: {
+    height: 48,
+    width: 48,
+    borderRadius: 14,
+    backgroundColor: "#052e16",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  cardTitle: {
     color: "#fff",
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: "700",
+  },
+
+  cardSub: {
+    color: "#94a3b8",
+    fontSize: 13,
+  },
+
+  /* QUICK ACTION */
+  quickAction: {
+    marginTop: 30,
+    backgroundColor: "#22c55e",
+    borderRadius: 18,
+    paddingVertical: 14,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+  },
+
+  quickText: {
+    color: "#020617",
+    fontSize: 16,
+    fontWeight: "800",
   },
 });
+
+
+
+

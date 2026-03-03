@@ -11,7 +11,6 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 
 export default function MemberTrackerScreen({ navigation }) {
-  // Example workout data (replace with API data)
   const [workouts, setWorkouts] = useState([
     { id: 1, name: "Chest & Triceps", date: "2025-12-22", status: "Pending" },
     { id: 2, name: "Back & Biceps", date: "2025-12-23", status: "Pending" },
@@ -44,14 +43,14 @@ export default function MemberTrackerScreen({ navigation }) {
         <Text style={styles.headerSub}>Track your daily workouts</Text>
       </View>
 
-      {/* Workouts List */}
+      {/* Workout List */}
       <ScrollView contentContainerStyle={styles.container}>
         {workouts.map((workout) => (
           <View key={workout.id} style={styles.card}>
             <View style={styles.cardInfo}>
               <Ionicons
                 name="barbell-outline"
-                size={28}
+                size={26}
                 color="#4e9efc"
                 style={{ marginRight: 12 }}
               />
@@ -95,13 +94,25 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    padding: 20,
+    paddingVertical: 18,
+    paddingHorizontal: 20,
     backgroundColor: "#020617",
   },
-  headerTitle: { fontSize: 22, fontWeight: "700", color: "#fff" },
-  headerSub: { fontSize: 14, color: "#cbd5f5", marginTop: 4 },
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#fff",
+  },
+  headerSub: {
+    fontSize: 14,
+    color: "#cbd5f5",
+    marginTop: 4,
+  },
 
-  container: { padding: 20, paddingBottom: 50 },
+  container: {
+    padding: 16,
+    paddingBottom: 80,
+  },
 
   card: {
     flexDirection: "row",
@@ -110,13 +121,25 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 16,
     borderRadius: 14,
-    marginBottom: 14,
-    elevation: 3,
+    marginBottom: 12,
+    elevation: 2,
   },
-  cardInfo: { flexDirection: "row", alignItems: "center" },
 
-  workoutName: { fontSize: 16, fontWeight: "700", color: "#020617" },
-  workoutDate: { fontSize: 13, color: "#64748b", marginTop: 2 },
+  cardInfo: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  workoutName: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: "#020617",
+  },
+  workoutDate: {
+    fontSize: 13,
+    color: "#64748b",
+    marginTop: 2,
+  },
 
   statusBtn: {
     paddingVertical: 6,

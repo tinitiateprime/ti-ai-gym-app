@@ -1,22 +1,11 @@
-require("dotenv").config();
-
 const express = require("express");
-const cors = require("cors");
-const { createUser, verifyUser } = require("./src/services/authCsvService");
+const { createUser, verifyUser } = require("../services/authCsvService");
 
-const app = express();
-const PORT = Number(process.env.PORT || 3001);
-
-app.use(cors());
-app.use(express.json());
+const router = express.Router();
 
 const VALID_ROLES = ["MEMBER", "TRAINER", "SELLER", "OWNER"];
 
-app.get("/api/health", (_req, res) => {
-  res.json({ ok: true, message: "Server is running" });
-});
-
-app.post("/api/signup", async (req, res) => {
+router.post("/signup", async (req, res) => {
   try {
     const { fullName, mobile, email, password, roleKey } = req.body || {};
 
@@ -75,7 +64,7 @@ app.post("/api/signup", async (req, res) => {
   }
 });
 
-app.post("/api/login", async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body || {};
 
@@ -112,6 +101,4 @@ app.post("/api/login", async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+module.exports = router;

@@ -24,7 +24,6 @@ export default function MemberProfileScreen({ navigation, route }) {
       Alert.alert("Error", "Name and Mobile cannot be empty");
       return;
     }
-    // Here you can call API to save updated data
     Alert.alert("Success", "Profile updated successfully");
     setEditMode(false);
   };
@@ -35,59 +34,75 @@ export default function MemberProfileScreen({ navigation, route }) {
         {/* Back Button */}
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => navigation.navigate("MemberHome")}
+          onPress={() => navigation.goBack()}
         >
-          <Ionicons name="arrow-back" size={26} color="#020617" />
+          <Ionicons name="arrow-back-outline" size={26} color="#e5e7eb" />
         </TouchableOpacity>
 
         {/* Header */}
         <View style={styles.header}>
+          <Ionicons name="person-circle-outline" size={40} color="#38bdf8" />
           <Text style={styles.headerTitle}>My Profile</Text>
-          <Text style={styles.headerSub}>View and update your information</Text>
+          <Text style={styles.headerSub}>
+            View & update your personal details
+          </Text>
         </View>
 
         {/* Profile Picture */}
         <View style={styles.profilePicContainer}>
           <Image
-            source={require("../../assets/avatar.png")} // replace with member image if available
+            source={require("../../assets/avatar.png")}
             style={styles.profilePic}
           />
           <TouchableOpacity style={styles.editPicButton}>
-            <Ionicons name="camera" size={20} color="#fff" />
+            <Ionicons name="camera-outline" size={18} color="#fff" />
           </TouchableOpacity>
         </View>
 
-        {/* Profile Details */}
+        {/* Details Card */}
         <View style={styles.detailCard}>
-          <Text style={styles.label}>Full Name</Text>
-          <TextInput
-            style={styles.input}
+          <Field
+            label="Full Name"
+            icon="person-outline"
             value={name}
             onChangeText={setName}
             editable={editMode}
           />
 
-          <Text style={styles.label}>Email</Text>
-          <TextInput style={styles.input} value={email} editable={false} />
+          <Field
+            label="Email"
+            icon="mail-outline"
+            value={email}
+            editable={false}
+          />
 
-          <Text style={styles.label}>Mobile</Text>
-          <TextInput
-            style={styles.input}
+          <Field
+            label="Mobile"
+            icon="call-outline"
             value={mobile}
             onChangeText={setMobile}
             keyboardType="phone-pad"
             editable={editMode}
           />
 
-          <Text style={styles.label}>Role</Text>
-          <TextInput style={styles.input} value={role} editable={false} />
+          <Field
+            label="Role"
+            icon="shield-checkmark-outline"
+            value={role}
+            editable={false}
+          />
 
           <TouchableOpacity
             style={editMode ? styles.saveBtn : styles.editBtn}
             onPress={editMode ? handleSave : () => setEditMode(true)}
           >
+            <Ionicons
+              name={editMode ? "save-outline" : "create-outline"}
+              size={18}
+              color="#fff"
+            />
             <Text style={styles.btnText}>
-              {editMode ? "Save Changes" : "Edit Profile"}
+              {editMode ? " Save Changes" : " Edit Profile"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -96,88 +111,146 @@ export default function MemberProfileScreen({ navigation, route }) {
   );
 }
 
+/* Reusable Input Field */
+function Field({ label, icon, ...props }) {
+  return (
+    <View style={styles.field}>
+      <Text style={styles.label}>{label}</Text>
+      <View style={styles.inputRow}>
+        <Ionicons name={icon} size={18} color="#94a3b8" />
+        <TextInput
+          style={styles.input}
+          placeholderTextColor="#64748b"
+          {...props}
+        />
+      </View>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: "#f8fafc" },
-  container: { padding: 20, paddingBottom: 50 },
+  safeArea: {
+    flex: 1,
+    backgroundColor: "#020617",
+  },
+
+  container: {
+    padding: 20,
+    paddingBottom: 50,
+  },
 
   backButton: {
     position: "absolute",
-    top: 30,
+    top: 20,
     left: 20,
     zIndex: 10,
   },
 
   header: {
-    marginBottom: 20,
+    alignItems: "center",
+    marginTop: 30,
+    marginBottom: 30,
   },
+
   headerTitle: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: "#020617",
+    fontSize: 24,
+    fontWeight: "800",
+    color: "#f8fafc",
+    marginTop: 8,
   },
+
   headerSub: {
     fontSize: 14,
-    color: "#64748b",
+    color: "#94a3b8",
     marginTop: 4,
   },
 
   profilePicContainer: {
     alignItems: "center",
-    marginBottom: 20,
+    marginBottom: 24,
     position: "relative",
   },
+
   profilePic: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    backgroundColor: "#e5e7eb",
+    borderWidth: 2,
+    borderColor: "#1e293b",
+    backgroundColor: "#0f172a",
   },
+
   editPicButton: {
     position: "absolute",
-    bottom: 0,
-    right: 0,
-    backgroundColor: "#4e9efc",
-    borderRadius: 20,
+    bottom: 4,
+    right: 120 / 4,
+    backgroundColor: "#38bdf8",
+    borderRadius: 18,
     padding: 6,
   },
 
   detailCard: {
-    backgroundColor: "#fff",
-    borderRadius: 14,
+    backgroundColor: "#0f172a",
+    borderRadius: 20,
     padding: 20,
-    elevation: 3,
+    borderWidth: 1,
+    borderColor: "#1e293b",
   },
+
+  field: {
+    marginBottom: 16,
+  },
+
   label: {
-    fontSize: 13,
+    fontSize: 12,
     color: "#94a3b8",
     marginBottom: 6,
-    marginTop: 12,
   },
+
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#020617",
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#1e293b",
+    gap: 10,
+  },
+
   input: {
-    fontSize: 16,
-    color: "#020617",
-    borderBottomWidth: 1,
-    borderBottomColor: "#e5e7eb",
-    paddingVertical: 6,
+    flex: 1,
+    fontSize: 15,
+    color: "#e5e7eb",
   },
 
   editBtn: {
-    backgroundColor: "#4e9efc",
+    flexDirection: "row",
+    backgroundColor: "#38bdf8",
     padding: 14,
-    borderRadius: 10,
+    borderRadius: 14,
     marginTop: 24,
     alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
   },
+
   saveBtn: {
-    backgroundColor: "#10b981",
+    flexDirection: "row",
+    backgroundColor: "#22c55e",
     padding: 14,
-    borderRadius: 10,
+    borderRadius: 14,
     marginTop: 24,
     alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
   },
+
   btnText: {
     color: "#fff",
     fontWeight: "700",
-    fontSize: 16,
+    fontSize: 15,
   },
 });
+

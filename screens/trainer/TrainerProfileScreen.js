@@ -1,24 +1,27 @@
+
 import React from "react";
 import {
   View,
   Text,
   StyleSheet,
   Image,
-  TouchableOpacity,
   ScrollView,
+  TouchableOpacity,
+  SafeAreaView,
+  StatusBar,
 } from "react-native";
 
-export default function TrainerProfileScreen() {
+export default function TrainerPage() {
   return (
-    <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Trainer Profile</Text>
-      </View>
+    <SafeAreaView style={styles.safe}>
+      <StatusBar barStyle="dark-content" />
+      <ScrollView contentContainerStyle={styles.container}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Trainer Profile</Text>
+        </View>
 
-      {/* Content */}
-      <ScrollView contentContainerStyle={styles.content}>
-        {/* Profile Card */}
+        {/* Profile */}
         <View style={styles.profileCard}>
           <Image
             source={{
@@ -32,45 +35,43 @@ export default function TrainerProfileScreen() {
 
           {/* Stats */}
           <View style={styles.statsRow}>
-            <View style={styles.statBox}>
+            <View style={styles.stat}>
               <Text style={styles.statValue}>8+</Text>
               <Text style={styles.statLabel}>Years</Text>
             </View>
-            <View style={styles.statBox}>
+            <View style={styles.stat}>
               <Text style={styles.statValue}>120+</Text>
               <Text style={styles.statLabel}>Clients</Text>
             </View>
-            <View style={styles.statBox}>
+            <View style={styles.stat}>
               <Text style={styles.statValue}>4.8</Text>
               <Text style={styles.statLabel}>Rating</Text>
             </View>
           </View>
         </View>
 
-        {/* Details */}
+        {/* About */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>About</Text>
           <Text style={styles.sectionText}>
-            Experienced personal trainer specializing in weight loss, muscle
-            building, and functional training. Passionate about helping clients
-            achieve sustainable fitness goals.
+            Experienced trainer focused on weight loss, muscle building, and
+            functional fitness. Helping clients stay strong and consistent.
           </Text>
         </View>
 
+        {/* Specializations */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Specializations</Text>
-          <Text style={styles.sectionText}>
-            • Weight Training{"\n"}
-            • Cardio & HIIT{"\n"}
-            • Diet Guidance{"\n"}
-            • Strength Conditioning
-          </Text>
+          <Text style={styles.sectionText}>• Weight Training</Text>
+          <Text style={styles.sectionText}>• Cardio & HIIT</Text>
+          <Text style={styles.sectionText}>• Strength Conditioning</Text>
+          <Text style={styles.sectionText}>• Diet Guidance</Text>
         </View>
 
-        {/* Action Buttons */}
+        {/* Actions */}
         <View style={styles.buttonRow}>
           <TouchableOpacity style={styles.primaryBtn}>
-            <Text style={styles.btnText}>Edit Profile</Text>
+            <Text style={styles.primaryText}>Edit Profile</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.secondaryBtn}>
@@ -78,80 +79,93 @@ export default function TrainerProfileScreen() {
           </TouchableOpacity>
         </View>
       </ScrollView>
-
-      {/* Footer */}
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>© 2025 Fitness App</Text>
-      </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
+/* ---------------- Styles ---------------- */
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f8fafc" },
+  safe: {
+    flex: 1,
+    backgroundColor: "#f8fafc",
+  },
+
+  container: {
+    padding: 16,
+  },
 
   header: {
-    height: 60,
-    backgroundColor: "#020617",
-    justifyContent: "center",
-    alignItems: "center",
+    marginBottom: 16,
   },
-  headerTitle: { color: "#fff", fontSize: 18, fontWeight: "700" },
 
-  content: {
-    padding: 20,
-    paddingBottom: 30,
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#020617",
   },
 
   profileCard: {
-    backgroundColor: "#fff",
-    borderRadius: 14,
+    backgroundColor: "#ffffff",
+    borderRadius: 12,
+    padding: 16,
     alignItems: "center",
-    padding: 20,
-    marginBottom: 20,
-    elevation: 3,
+    marginBottom: 16,
   },
 
   avatar: {
     width: 90,
     height: 90,
     borderRadius: 45,
-    marginBottom: 12,
+    marginBottom: 10,
   },
 
-  name: { fontSize: 20, fontWeight: "700", color: "#020617" },
-  role: { fontSize: 14, color: "#64748b", marginBottom: 16 },
+  name: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#020617",
+  },
+
+  role: {
+    fontSize: 14,
+    color: "#64748b",
+    marginBottom: 14,
+  },
 
   statsRow: {
     flexDirection: "row",
-    justifyContent: "space-between",
     width: "100%",
+    justifyContent: "space-between",
   },
 
-  statBox: {
+  stat: {
     alignItems: "center",
     flex: 1,
   },
 
   statValue: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
-    color: "#020617",
+    color: "#2563eb",
   },
-  statLabel: { fontSize: 12, color: "#64748b" },
+
+  statLabel: {
+    fontSize: 12,
+    color: "#64748b",
+  },
 
   section: {
-    backgroundColor: "#fff",
+    backgroundColor: "#ffffff",
     borderRadius: 12,
     padding: 16,
-    marginBottom: 16,
+    marginBottom: 14,
   },
 
   sectionTitle: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: "700",
-    marginBottom: 6,
     color: "#020617",
+    marginBottom: 6,
   },
 
   sectionText: {
@@ -168,8 +182,8 @@ const styles = StyleSheet.create({
 
   primaryBtn: {
     flex: 1,
-    backgroundColor: "#020617",
-    padding: 14,
+    backgroundColor: "#2563eb",
+    paddingVertical: 14,
     borderRadius: 10,
     alignItems: "center",
   },
@@ -177,21 +191,18 @@ const styles = StyleSheet.create({
   secondaryBtn: {
     flex: 1,
     backgroundColor: "#e5e7eb",
-    padding: 14,
+    paddingVertical: 14,
     borderRadius: 10,
     alignItems: "center",
   },
 
-  btnText: { color: "#fff", fontWeight: "600" },
-  secondaryText: { color: "#020617", fontWeight: "600" },
-
-  footer: {
-    height: 45,
-    borderTopWidth: 1,
-    borderColor: "#e5e7eb",
-    justifyContent: "center",
-    alignItems: "center",
+  primaryText: {
+    color: "#ffffff",
+    fontWeight: "600",
   },
 
-  footerText: { fontSize: 12, color: "#64748b" },
+  secondaryText: {
+    color: "#020617",
+    fontWeight: "600",
+  },
 });

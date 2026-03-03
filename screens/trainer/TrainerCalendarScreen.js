@@ -1,6 +1,15 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, FlatList } from "react-native";
+
+import React, { useMemo, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  SafeAreaView,
+  StatusBar,
+} from "react-native";
 import { Calendar } from "react-native-calendars";
+import { Ionicons } from "@expo/vector-icons";
 
 export default function TrainerCalendarScreen() {
   const [selectedDate, setSelectedDate] = useState("2025-01-10");
@@ -15,142 +24,220 @@ export default function TrainerCalendarScreen() {
     ],
   };
 
-  const markedDates = {
-    ...Object.keys(sessions).reduce((acc, date) => {
-      acc[date] = { marked: true, dotColor: "#16a34a" };
-      return acc;
-    }, {}),
-    [selectedDate]: {
+  const markedDates = useMemo(() => {
+    const marks = {};
+
+    Object.keys(sessions).forEach((date) => {
+      marks[date] = {
+        marked: true,
+        dotColor: "#3b82f6",
+      };
+    });
+
+    marks[selectedDate] = {
       selected: true,
-      selectedColor: "#020617",
-    },
-  };
+      selectedColor: "#3b82f6",
+      selectedTextColor: "#fff",
+      marked: !!sessions[selectedDate],
+      dotColor: "#93c5fd",
+    };
+
+    return marks;
+  }, [selectedDate]);
+
+  const daySessions = sessions[selectedDate] || [];
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.safe}>
+      <StatusBar barStyle="light-content" />
+
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Training Schedule</Text>
+        <View style={styles.headerIcon}>
+          <Ionicons name="calendar-outline" size={18} color="#93c5fd" />
+        </View>
+        <View>
+          <Text style={styles.headerTitle}>Training Schedule</Text>
+          <Text style={styles.headerSub}>
+            {selectedDate} • {daySessions.length} sessions
+          </Text>
+        </View>
       </View>
 
       {/* Calendar */}
-      <Calendar
-        current={selectedDate}
-        onDayPress={(day) => setSelectedDate(day.dateString)}
-        markedDates={markedDates}
-        theme={{
-          backgroundColor: "#f8fafc",
-          calendarBackground: "#ffffff",
-          todayTextColor: "#dc2626",
-          selectedDayTextColor: "#ffffff",
-          textDayFontWeight: "500",
-          textMonthFontWeight: "700",
-          arrowColor: "#020617",
-        }}
-        style={styles.calendar}
-      />
+      <View style={styles.calendarCard}>
+        <Calendar
+          current={selectedDate}
+          onDayPress={(day) => setSelectedDate(day.dateString)}
+          markedDates={markedDates}
+          enableSwipeMonths
+          theme={{
+            calendarBackground: "#0f172a",
+            monthTextColor: "#e5e7eb",
+            textMonthFontWeight: "800",
+            dayTextColor: "#cbd5e1",
+            textDayFontWeight: "700",
+            todayTextColor: "#93c5fd",
+            selectedDayTextColor: "#ffffff",
+            arrowColor: "#93c5fd",
+            textDisabledColor: "#334155",
+          }}
+        />
+      </View>
 
       {/* Sessions */}
-      <View style={styles.sessionContainer}>
-        <Text style={styles.sectionTitle}>
-          Sessions on {selectedDate}
-        </Text>
+      <View style={styles.sessionWrap}>
+        <Text style={styles.sectionTitle}>Sessions</Text>
 
-        {sessions[selectedDate]?.length ? (
+        {daySessions.length ? (
           <FlatList
-            data={sessions[selectedDate]}
+            data={daySessions}
             keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 20 }}
             renderItem={({ item }) => (
               <View style={styles.sessionCard}>
-                <View style={styles.timeBox}>
+                <View style={styles.accentBar} />
+
+                <View style={styles.timeChip}>
+                  <Ionicons name="time-outline" size={14} color="#93c5fd" />
                   <Text style={styles.timeText}>{item.time}</Text>
                 </View>
-                <View style={styles.sessionInfo}>
+
+                <View style={styles.info}>
                   <Text style={styles.client}>{item.client}</Text>
                   <Text style={styles.type}>{item.type}</Text>
                 </View>
+
+                <Ionicons name="chevron-forward" size={18} color="#475569" />
               </View>
             )}
           />
         ) : (
-          <Text style={styles.noSession}>No sessions scheduled</Text>
+          <View style={styles.empty}>
+            <Ionicons
+              name="calendar-clear-outline"
+              size={26}
+              color="#64748b"
+            />
+            <Text style={styles.emptyText}>No sessions scheduled</Text>
+          </View>
         )}
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
+/* ---------------- STYLES ---------------- */
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#f8fafc" },
+  safe: { flex: 1, backgroundColor: "#020617" },
 
   header: {
-    height: 60,
-    backgroundColor: "#020617",
-    justifyContent: "center",
+    flexDirection: "row",
     alignItems: "center",
+    gap: 12,
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#1e293b",
   },
-  headerTitle: { color: "#fff", fontSize: 18, fontWeight: "700" },
-
-  calendar: {
-    margin: 12,
-    borderRadius: 12,
-    elevation: 3,
+  headerIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#0b1224",
+    borderWidth: 1,
+    borderColor: "#1e293b",
+  },
+  headerTitle: {
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "900",
+  },
+  headerSub: {
+    color: "#94a3b8",
+    fontSize: 12,
+    fontWeight: "700",
+    marginTop: 4,
   },
 
-  sessionContainer: {
+  calendarCard: {
+    margin: 14,
+    backgroundColor: "#0f172a",
+    borderRadius: 18,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: "#1e293b",
+  },
+
+  sessionWrap: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingTop: 8,
   },
-
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: 15,
+    fontWeight: "900",
+    color: "#e5e7eb",
     marginBottom: 10,
-    color: "#020617",
   },
 
   sessionCard: {
     flexDirection: "row",
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 10,
-    elevation: 2,
-  },
-
-  timeBox: {
-    width: 80,
-    justifyContent: "center",
     alignItems: "center",
-    borderRightWidth: 1,
-    borderColor: "#e5e7eb",
-    marginRight: 12,
+    gap: 12,
+    backgroundColor: "#0f172a",
+    borderRadius: 18,
+    padding: 14,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#1e293b",
+  },
+  accentBar: {
+    width: 4,
+    height: 44,
+    borderRadius: 999,
+    backgroundColor: "#3b82f6",
   },
 
+  timeChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 999,
+    backgroundColor: "#0b1224",
+    borderWidth: 1,
+    borderColor: "#1e293b",
+  },
   timeText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#16a34a",
+    color: "#e5e7eb",
+    fontSize: 12,
+    fontWeight: "900",
   },
 
-  sessionInfo: { flex: 1 },
-
+  info: { flex: 1 },
   client: {
-    fontSize: 15,
-    fontWeight: "700",
-    color: "#020617",
+    color: "#fff",
+    fontSize: 14,
+    fontWeight: "900",
   },
-
   type: {
-    fontSize: 13,
-    color: "#64748b",
-    marginTop: 2,
+    color: "#94a3b8",
+    fontSize: 12,
+    fontWeight: "700",
+    marginTop: 4,
   },
 
-  noSession: {
-    textAlign: "center",
-    color: "#94a3b8",
-    marginTop: 20,
+  empty: {
+    alignItems: "center",
+    marginTop: 40,
+  },
+  emptyText: {
+    marginTop: 10,
+    color: "#64748b",
+    fontWeight: "700",
   },
 });

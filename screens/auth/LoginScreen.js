@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// screens/auth/LoginScreen.js
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -10,78 +11,114 @@ import {
 } from "react-native";
 import { Ionicons, Feather } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { getUserProfile } from "../../api/storage/userStorage";
 
 const ROLE_HOME = {
   MEMBER: "MemberHome",
-  TRAINER: "TrainerHomeScreen", // ✅ new trainers go to Trainer Home
+  TRAINER: "TrainerHomeScreen",
   SELLER: "MarketplaceHome",
-   OWNER: "OwnerDashboard",
+  OWNER: "OwnerDashboard",
 };
+
+const ROLE_LABELS = {
+  MEMBER: "Member",
+  TRAINER: "Trainer",
+  SELLER: "Market Seller",
+  OWNER: "Gym Owner",
+};
+
+const API_BASE =
+  Platform.OS === "android" ? "http://10.0.2.2:3001" : "http://localhost:3001";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const API_BASE =
-    Platform.OS === "android"
-      ? "http://10.0.2.2:3001"
-      : "http://localhost:3001";
+  const handleLogin = async () => {
+    const emailValue = email.trim().toLowerCase();
+    const passwordValue = password;
 
-const handleLogin = async () => {
-  if (!email || !password) {
-    Alert.alert("Error", "Please enter both email and password");
-    return;
-  }
-
-  try {
-    const resp = await fetch(`${API_BASE}/api/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: email.trim().toLowerCase(),
-        password,
-      }),
-    });
-
-    const data = await resp.json().catch(() => ({}));
-
-    if (!resp.ok || !data.ok) {
-      Alert.alert("Login Failed", data.error || "Invalid credentials");
+    if (!emailValue || !passwordValue) {
+      Alert.alert("Error", "Please enter both email and password");
       return;
     }
 
-    const roleKey = data.user.roleKey;
-    const target = ROLE_HOME[roleKey];
+    try {
+      setLoading(true);
 
-    if (!target) {
-      Alert.alert("Error", `No screen mapped for role: ${roleKey}`);
-      return;
-    }
+      const resp = await fetch(`${API_BASE}/api/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: emailValue,
+          password: passwordValue,
+        }),
+      });
 
-    // ✅ Reset navigation stack here
-    navigation.reset({
-      index: 0,
-      routes: [
-        {
-          name: target,
-          params: {
-            email: data.user.email,
-            fullName: data.user.fullName,
-            role: roleKey,
+      const data = await resp.json().catch(() => ({}));
+      setLoading(false);
+
+      if (!resp.ok || !data.ok) {
+        Alert.alert("Login Failed", data.error || "Invalid credentials");
+        return;
+      }
+
+      const roleKey = data.user?.roleKey;
+      const target = ROLE_HOME[roleKey];
+
+      if (!target) {
+        Alert.alert("Error", `No screen mapped for role: ${roleKey}`);
+        return;
+      }
+
+      const emailKey = (data.user?.email || "").toLowerCase();
+
+      // Existing payment gate stays the same
+      const profile = await getUserProfile(emailKey);
+      const isPaid = Boolean(profile?.isPaid);
+
+      if (!isPaid) {
+        navigation.reset({
+          index: 0,
+          routes: [
+            {
+              name: "CustomerPayment",
+              params: {
+                roleId: roleKey,
+                roleLabel: ROLE_LABELS[roleKey] || roleKey,
+                homeRoute: target,
+                fullName: data.user?.fullName,
+                email: emailKey,
+              },
+            },
+          ],
+        });
+        return;
+      }
+
+      navigation.reset({
+        index: 0,
+        routes: [
+          {
+            name: target,
+            params: {
+              email: emailKey,
+              fullName: data.user?.fullName,
+              role: roleKey,
+            },
           },
-        },
-      ],
-    });
-
-  } catch (e) {
-    Alert.alert(
-      "Network Error",
-      "Cannot connect to backend. Is server.js running on port 3001?"
-    );
-  }
-};
-
+        ],
+      });
+    } catch (e) {
+      setLoading(false);
+      Alert.alert(
+        "Network Error",
+        "Cannot connect to backend. Make sure the server is running on port 3001."
+      );
+    }
+  };
 
   return (
     <LinearGradient colors={["#0f0c29", "#302b63", "#24243e"]} style={styles.container}>
@@ -121,8 +158,14 @@ const handleLogin = async () => {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={styles.primaryButton} onPress={handleLogin}>
-          <Text style={styles.primaryText}>ENTER THE GYM</Text>
+        <TouchableOpacity
+          style={[styles.primaryButton, loading && { opacity: 0.7 }]}
+          onPress={handleLogin}
+          disabled={loading}
+        >
+          <Text style={styles.primaryText}>
+            {loading ? "PLEASE WAIT..." : "ENTER THE GYM"}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => navigation.navigate("SelectRole")}>
@@ -144,10 +187,30 @@ const styles = StyleSheet.create({
   mainHeadingBold: { color: "#fff", fontSize: 44, fontWeight: "900", lineHeight: 48 },
   tagline: { color: "#aaa", marginTop: 14, fontSize: 15 },
   bottomSection: { flex: 1, paddingTop: 30 },
-  input: { height: 52, borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.3)", color: "#fff", fontSize: 16, marginBottom: 24 },
-  passwordRow: { flexDirection: "row", alignItems: "center", borderBottomWidth: 1, borderBottomColor: "rgba(255,255,255,0.3)", marginBottom: 36 },
+  input: {
+    height: 52,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.3)",
+    color: "#fff",
+    fontSize: 16,
+    marginBottom: 24,
+  },
+  passwordRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255,255,255,0.3)",
+    marginBottom: 36,
+  },
   passwordInput: { flex: 1, height: 52, color: "#fff", fontSize: 16 },
-  primaryButton: { height: 58, borderRadius: 16, backgroundColor: "#4e9efc", justifyContent: "center", alignItems: "center", marginBottom: 18 },
+  primaryButton: {
+    height: 58,
+    borderRadius: 16,
+    backgroundColor: "#4e9efc",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 18,
+  },
   primaryText: { color: "#fff", fontSize: 16, fontWeight: "900", letterSpacing: 1.2 },
   signupText: { textAlign: "center", color: "#bbb", fontSize: 14 },
   signupBold: { color: "#4e9efc", fontWeight: "700" },
