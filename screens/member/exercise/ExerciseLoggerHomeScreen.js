@@ -1,84 +1,128 @@
-// screens/member/exercise/ExerciseLoggerHomeScreen.js
-import React, { useEffect } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { initExerciseDb } from "../../../db/exerciseDb";
+// src/screens/member/exercise/ExerciseLoggerHomeScreen.js
 
-const EXERCISES = [
-  { name: "Pushups", category: "Strength" },
-  { name: "Squats", category: "Strength" },
-  { name: "Running", category: "Cardio" },
-  { name: "Cycling", category: "Cardio" },
-];
+import React from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  SafeAreaView,
+  ScrollView,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { WORKOUT_CATALOG } from "../../constants/workoutCatalog";
 
 export default function ExerciseLoggerHomeScreen({ navigation, route }) {
-  // ✅ accept both param names
   const userEmail = (route?.params?.userEmail || route?.params?.email || "").toLowerCase();
+  const userName = route?.params?.fullName || route?.params?.userName || "";
 
-  useEffect(() => {
-    initExerciseDb().catch(console.warn);
-  }, []);
+  const openWorkout = (group, item) => {
+    navigation.navigate("ExerciseSession", {
+      email: userEmail,
+      userEmail,
+      fullName: userName,
+      userName,
+
+      workoutId: item.id,
+      workoutTypeId: group.id,
+      workoutTypeName: group.name,
+      category: item.category,
+      exerciseName: item.name,
+      workoutConfig: {
+        ...item,
+        workoutTypeId: group.id,
+        workoutTypeName: group.name,
+        workoutTypeIcon: group.icon,
+      },
+    });
+  };
 
   return (
     <SafeAreaView style={styles.safe}>
-      <View style={styles.header}>
-        <Ionicons name="barbell-outline" size={34} color="#38bdf8" />
-        <Text style={styles.title}>Exercise Logger</Text>
-        <Text style={styles.sub}>Save workouts locally (SQLite)</Text>
-      </View>
+      <ScrollView contentContainerStyle={styles.scrollContent}>
+        <View style={styles.header}>
+          <Ionicons name="barbell-outline" size={34} color="#38bdf8" />
+          <Text style={styles.title}>Workout Explorer</Text>
+          <Text style={styles.sub}>All workouts are loaded dynamically from the catalog</Text>
+        </View>
 
-      <View style={styles.body}>
         <TouchableOpacity
           style={styles.reportBtn}
-          onPress={() => navigation.navigate("ExerciseReports", { email: userEmail })}
+          onPress={() =>
+            navigation.navigate("ExerciseReports", {
+              email: userEmail,
+              userEmail,
+              fullName: userName,
+              userName,
+            })
+          }
         >
           <Ionicons name="stats-chart-outline" size={20} color="#020617" />
           <Text style={styles.reportText}>Open Reports</Text>
         </TouchableOpacity>
 
-        <Text style={styles.sectionTitle}>Choose Exercise</Text>
+        {WORKOUT_CATALOG.map((group) => (
+          <View key={group.id} style={styles.groupCard}>
+            <View style={styles.groupHeader}>
+              <View style={styles.groupHeaderLeft}>
+                <Ionicons
+                  name={group.icon || "barbell-outline"}
+                  size={20}
+                  color="#38bdf8"
+                />
+                <Text style={styles.groupTitle}>{group.name}</Text>
+              </View>
 
-        {EXERCISES.map((ex) => (
-          <TouchableOpacity
-            key={ex.name}
-            style={styles.card}
-            onPress={() =>
-              navigation.navigate("ExerciseSession", {
-                email: userEmail, // ✅ consistent param name
-                exerciseName: ex.name,
-                category: ex.category,
-              })
-            }
-          >
-            <Ionicons
-              name={ex.category === "Cardio" ? "walk-outline" : "barbell-outline"}
-              size={22}
-              color="#38bdf8"
-            />
-            <View style={{ marginLeft: 12, flex: 1 }}>
-              <Text style={styles.cardTitle}>{ex.name}</Text>
-              <Text style={styles.cardSub}>{ex.category}</Text>
+              <Text style={styles.groupCount}>{group.items.length} workouts</Text>
             </View>
-            <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
-          </TouchableOpacity>
+
+            {group.items.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.itemCard}
+                onPress={() => openWorkout(group, item)}
+              >
+                <View style={styles.itemLeft}>
+                  <Ionicons
+                    name={group.icon || "barbell-outline"}
+                    size={20}
+                    color="#38bdf8"
+                  />
+
+                  <View style={{ marginLeft: 12, flex: 1 }}>
+                    <Text style={styles.itemTitle}>{item.name}</Text>
+                    <Text style={styles.itemSub}>
+                      {item.category} • {item.defaultSets} sets • {item.defaultTimerSec}s
+                      {item.defaultReps ? ` • ${item.defaultReps} reps` : ""}
+                    </Text>
+                  </View>
+                </View>
+
+                <Ionicons name="chevron-forward" size={20} color="#94a3b8" />
+              </TouchableOpacity>
+            ))}
+          </View>
         ))}
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#020617" },
+  scrollContent: { padding: 16, paddingBottom: 30 },
+
   header: {
     alignItems: "center",
-    paddingTop: 30,
+    paddingTop: 20,
     paddingBottom: 18,
     borderBottomWidth: 1,
     borderBottomColor: "#1e293b",
+    marginBottom: 18,
   },
   title: { color: "#f8fafc", fontSize: 22, fontWeight: "900", marginTop: 8 },
-  sub: { color: "#94a3b8", marginTop: 4 },
-  body: { padding: 16 },
+  sub: { color: "#94a3b8", marginTop: 4, textAlign: "center" },
+
   reportBtn: {
     flexDirection: "row",
     gap: 8,
@@ -90,17 +134,45 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   reportText: { fontWeight: "900", color: "#020617" },
-  sectionTitle: { color: "#e5e7eb", fontWeight: "800", marginBottom: 10, marginTop: 8 },
-  card: {
+
+  groupCard: {
+    backgroundColor: "#0b1220",
+    borderWidth: 1,
+    borderColor: "#1e293b",
+    borderRadius: 18,
+    padding: 12,
+    marginBottom: 14,
+  },
+  groupHeader: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 10,
+  },
+  groupHeaderLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  groupTitle: { color: "#f8fafc", fontSize: 16, fontWeight: "900" },
+  groupCount: { color: "#94a3b8", fontSize: 12, fontWeight: "700" },
+
+  itemCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: "#0f172a",
     borderWidth: 1,
     borderColor: "#1e293b",
+    borderRadius: 14,
     padding: 14,
-    borderRadius: 16,
-    marginBottom: 10,
+    marginTop: 8,
   },
-  cardTitle: { color: "#f8fafc", fontWeight: "800", fontSize: 16 },
-  cardSub: { color: "#94a3b8", marginTop: 2, fontSize: 12 },
+  itemLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 1,
+  },
+  itemTitle: { color: "#f8fafc", fontWeight: "800", fontSize: 15 },
+  itemSub: { color: "#94a3b8", marginTop: 3, fontSize: 12 },
 });

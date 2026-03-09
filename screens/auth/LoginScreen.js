@@ -38,7 +38,7 @@ export default function LoginScreen({ navigation }) {
 
   const handleLogin = async () => {
     const emailValue = email.trim().toLowerCase();
-    const passwordValue = password;
+    const passwordValue = String(password); // ✅ ensure string
 
     if (!emailValue || !passwordValue) {
       Alert.alert("Error", "Please enter both email and password");
@@ -75,7 +75,6 @@ export default function LoginScreen({ navigation }) {
 
       const emailKey = (data.user?.email || "").toLowerCase();
 
-      // Existing payment gate stays the same
       const profile = await getUserProfile(emailKey);
       const isPaid = Boolean(profile?.isPaid);
 
@@ -141,7 +140,9 @@ export default function LoginScreen({ navigation }) {
           style={styles.input}
           value={email}
           onChangeText={setEmail}
+          keyboardType="email-address"
           autoCapitalize="none"
+          autoCorrect={false}
         />
 
         <View style={styles.passwordRow}>
@@ -152,6 +153,8 @@ export default function LoginScreen({ navigation }) {
             secureTextEntry={!showPassword}
             value={password}
             onChangeText={setPassword}
+            autoCapitalize="none"
+            autoCorrect={false}
           />
           <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
             <Feather name={showPassword ? "eye" : "eye-off"} size={20} color="#ccc" />
@@ -215,3 +218,4 @@ const styles = StyleSheet.create({
   signupText: { textAlign: "center", color: "#bbb", fontSize: 14 },
   signupBold: { color: "#4e9efc", fontWeight: "700" },
 });
+

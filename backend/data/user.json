@@ -1,69 +1,27 @@
 [
   {
-    "fullName": "ram",
-    "mobile": "9652548212",
-    "email": "ram@gym.com",
+    "fullName": "tillu",
+    "mobile": 9632587412,
+    "email": "tillu@gmail.com",
     "password": "741852",
-    "roleKey": "TRAINER",
-    "createdAt": "2025-12-19T07:20:03.992Z"
-  },
-  
-  {
-    "fullName": "esh",
-    "mobile": "789456130",
-    "email": "esh@gmail.com",
-    "password": "123456",
     "roleKey": "MEMBER",
-    "createdAt": "2025-12-19T09:30:37.279Z"
-  },
-
-  {
-    "fullName": "hello",
-    "mobile": "7894561230",
-    "email": "hello@gym.com",
-    "password": "1234",
-    "roleKey": "SELLER",
-    "createdAt": "2025-12-21T16:54:26.581Z"
-  },
-  {
-    "fullName": "hey",
-    "mobile": "7896321450",
-    "email": "hey@gmail.com",
-    "password": "741852",
-    "roleKey": "OWNER",
-    "createdAt": "2025-12-21T17:41:30.831Z"
+    "createdAt": "2026-03-06T04:00:26.023Z"
   },
   {
     "fullName": "siva",
-    "mobile": "789654123",
-    "email": "siva@gmail.com",
-    "password": "789654",
-    "roleKey": "TRAINER",
-    "createdAt": "2025-12-29T07:41:43.096Z"
+    "mobile": 7815919728,
+    "email": "neswar@gmail.com",
+    "password": "123456789",
+    "roleKey": "MEMBER",
+    "createdAt": "2026-03-09T07:08:16.148Z"
   },
   {
-    "fullName": "sivaa",
-    "mobile": "1234567890",
-    "email": "sivaa@gmail.com",
-    "password": "741852",
+    "fullName": "eshu",
+    "mobile": 789456123,
+    "email": "eshu@gmail.com",
+    "password": "123456789",
     "roleKey": "MEMBER",
-    "createdAt": "2026-02-16T04:45:58.186Z"
-  },
-  {
-    "fullName": "surya",
-    "mobile": "7418529630",
-    "email": "surya@gmail.com",
-    "password": "852741",
-    "roleKey": "MEMBER",
-    "createdAt": "2026-02-16T05:13:47.239Z"
-  },
-  {
-    "fullName": "eswar",
-    "mobile": "7896541230",
-    "email": "eswar@gmail.com",
-    "passwordHash": "$2b$10$ILsCHIPsrEJdmqY7DvA7aO9178HF1DNtyVAGotT/jEblJV1dGUM9.",
-    "roleKey": "MEMBER",
-    "createdAt": "2026-03-03T09:43:46.772Z"
+    "createdAt": "2026-03-09T08:32:58.781Z"
   }
 ]
 

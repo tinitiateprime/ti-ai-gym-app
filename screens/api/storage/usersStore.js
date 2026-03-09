@@ -17,3 +17,4 @@ export const findUserByEmail = async (email) => {
   const users = await getUsers();
   return users.find((u) => u.email === email);
 };
+

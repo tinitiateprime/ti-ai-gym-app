@@ -1,106 +1,48 @@
-// src/routes/auth.ts
-import { Router } from "express";
-import bcrypt from "bcryptjs";
-import { appendCsvLine, readCsvObjects } from "../utils/blobCsv";
+const express = require("express");
+const { createUser, verifyUser } = require("../services/authJsonService");
 
-const router = Router();
+const router = express.Router();
 
-const USERS_BLOB_PATH = "auth/users.csv";
-
-const USER_HEADERS = [
-  "fullName",
-  "mobile",
-  "email",
-  "passwordHash",
-  "roleKey",
-  "createdAt",
-];
-
-function normalizeEmail(email: string): string {
-  return String(email || "").trim().toLowerCase();
-}
-
-function isValidEmail(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-}
-
-// SIGNUP
+// POST /api/signup
 router.post("/signup", async (req, res) => {
   try {
-    const fullName = String(req.body?.fullName || "").trim();
-    const mobile = String(req.body?.mobile || "").trim();
-    const email = normalizeEmail(req.body?.email);
-    const password = String(req.body?.password || "");
-    const roleKey = String(req.body?.roleKey || "").trim();
+    const { fullName, mobile, email, password, roleKey } = req.body || {};
 
-    if (!fullName || !mobile || !email || !password || !roleKey) {
-      return res.status(400).json({
-        ok: false,
-        error: "All fields are required",
-      });
-    }
-
-    if (!isValidEmail(email)) {
-      return res.status(400).json({
-        ok: false,
-        error: "Invalid email address",
-      });
-    }
-
-    if (password.length < 6) {
-      return res.status(400).json({
-        ok: false,
-        error: "Password must be at least 6 characters",
-      });
-    }
-
-    const users = await readCsvObjects(USERS_BLOB_PATH);
-    const alreadyExists = users.some(
-      (u) => normalizeEmail(u.email) === email
-    );
-
-    if (alreadyExists) {
-      return res.status(409).json({
-        ok: false,
-        error: "User already exists with this email",
-      });
-    }
-
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    await appendCsvLine(USERS_BLOB_PATH, USER_HEADERS, [
+    const user = await createUser({
       fullName,
       mobile,
       email,
-      passwordHash,
+      password,
       roleKey,
-      new Date().toISOString(),
-    ]);
+    });
 
     return res.status(201).json({
       ok: true,
       message: "Signup successful",
-      user: {
-        fullName,
-        mobile,
-        email,
-        roleKey,
-      },
+      user,
     });
-  } catch (error) {
-    console.error("Signup error:", error);
-    return res.status(500).json({
+  } catch (err) {
+    const message = err?.message || "Signup failed";
+
+    const status =
+      message === "Email already registered" ? 409 :
+      message === "All fields are required" ? 400 :
+      message === "Invalid email" ? 400 :
+      message === "Password must be at least 6 characters" ? 400 :
+      message === "Invalid role selected" ? 400 :
+      500;
+
+    return res.status(status).json({
       ok: false,
-      error: "Internal server error during signup",
+      error: message,
     });
   }
 });
 
-// LOGIN
+// POST /api/login
 router.post("/login", async (req, res) => {
   try {
-    const email = normalizeEmail(req.body?.email);
-    const password = String(req.body?.password || "");
+    const { email, password } = req.body || {};
 
     if (!email || !password) {
       return res.status(400).json({
@@ -109,19 +51,9 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    const users = await readCsvObjects(USERS_BLOB_PATH);
-    const user = users.find((u) => normalizeEmail(u.email) === email);
+    const user = await verifyUser(email, password);
 
     if (!user) {
-      return res.status(401).json({
-        ok: false,
-        error: "Invalid credentials",
-      });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.passwordHash || "");
-
-    if (!isPasswordValid) {
       return res.status(401).json({
         ok: false,
         error: "Invalid credentials",
@@ -131,20 +63,15 @@ router.post("/login", async (req, res) => {
     return res.json({
       ok: true,
       message: "Login successful",
-      user: {
-        fullName: user.fullName,
-        mobile: user.mobile,
-        email: user.email,
-        roleKey: user.roleKey,
-      },
+      user,
     });
-  } catch (error) {
-    console.error("Login error:", error);
+  } catch (err) {
+    console.error("Login failed:", err);
     return res.status(500).json({
       ok: false,
-      error: "Internal server error during login",
+      error: "Login failed",
     });
   }
 });
 
-export default router;
+module.exports = router;

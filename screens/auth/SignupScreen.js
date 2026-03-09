@@ -54,12 +54,16 @@ export default function SignupScreen({ navigation, route }) {
     const mobileValue = mobile.trim();
     const emailValue = email.trim().toLowerCase();
 
+    // ✅ Password should NOT be trimmed; keep exactly what user typed
+    const passwordValue = String(password);
+    const confirmValue = String(confirmPassword);
+
     if (!roleKey) {
       Alert.alert("Error", "Please select a role first");
       return;
     }
 
-    if (!fullNameValue || !mobileValue || !emailValue || !password || !confirmPassword) {
+    if (!fullNameValue || !mobileValue || !emailValue || !passwordValue || !confirmValue) {
       Alert.alert("Error", "All fields are required");
       return;
     }
@@ -69,12 +73,12 @@ export default function SignupScreen({ navigation, route }) {
       return;
     }
 
-    if (password.length < 6) {
+    if (passwordValue.length < 6) {
       Alert.alert("Error", "Password min 6 characters");
       return;
     }
 
-    if (password !== confirmPassword) {
+    if (passwordValue !== confirmValue) {
       Alert.alert("Error", "Passwords do not match");
       return;
     }
@@ -89,7 +93,7 @@ export default function SignupScreen({ navigation, route }) {
           fullName: fullNameValue,
           mobile: mobileValue,
           email: emailValue,
-          password,
+          password: passwordValue, // ✅ ensure string
           roleKey,
         }),
       });
@@ -104,7 +108,6 @@ export default function SignupScreen({ navigation, route }) {
 
       const homeRoute = ROLE_HOME[roleKey] || "HomeScreen";
 
-      // Keep your existing requirement: after signup -> payment first
       navigation.reset({
         index: 0,
         routes: [
@@ -150,6 +153,7 @@ export default function SignupScreen({ navigation, route }) {
           placeholderTextColor="#ccc"
           value={fullName}
           onChangeText={setFullName}
+          autoCorrect={false}
         />
 
         <TextInput
@@ -159,13 +163,16 @@ export default function SignupScreen({ navigation, route }) {
           keyboardType="phone-pad"
           value={mobile}
           onChangeText={setMobile}
+          autoCorrect={false}
         />
 
         <TextInput
           style={styles.input}
           placeholder="Email"
           placeholderTextColor="#ccc"
+          keyboardType="email-address"
           autoCapitalize="none"
+          autoCorrect={false}
           value={email}
           onChangeText={setEmail}
         />
@@ -176,6 +183,8 @@ export default function SignupScreen({ navigation, route }) {
             placeholder="Password"
             placeholderTextColor="#ccc"
             secureTextEntry={!showPassword}
+            autoCapitalize="none"
+            autoCorrect={false}
             value={password}
             onChangeText={setPassword}
           />
@@ -190,6 +199,8 @@ export default function SignupScreen({ navigation, route }) {
             placeholder="Confirm Password"
             placeholderTextColor="#ccc"
             secureTextEntry={!showConfirm}
+            autoCapitalize="none"
+            autoCorrect={false}
             value={confirmPassword}
             onChangeText={setConfirmPassword}
           />
