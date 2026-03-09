@@ -1,5 +1,7 @@
 # tinitiate-gym-app
 ## Home Page
+## User Login
+## User Profile
 ## Work Out Calender
 ## Work Out Page
 ### Workout Type
