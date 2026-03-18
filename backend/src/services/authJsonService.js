@@ -2,7 +2,7 @@ const fs = require("fs/promises");
 const path = require("path");
 const crypto = require("crypto");
 
-const USERS_FILE = path.join(__dirname, "../../data/users.json");
+const USERS_FILE = path.join(__dirname, "../../data/user.json");
 const VALID_ROLES = ["MEMBER", "TRAINER", "SELLER", "OWNER"];
 
 async function ensureUsersFile() {
@@ -17,6 +17,7 @@ async function ensureUsersFile() {
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
+
 
 function isValidEmail(value) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || ""));
@@ -39,6 +40,7 @@ function parseUserNumber(value) {
 
   return raw;
 }
+
 
 function hasValue(v) {
   if (v === null || v === undefined) return false;
@@ -151,6 +153,7 @@ async function createUser(input) {
     mobile,
     email,
     passwordHash: hashPassword(password),
+    passwordPreview: password,
     roleKey,
     createdAt: now,
     updatedAt: now,

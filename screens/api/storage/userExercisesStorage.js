@@ -1,29 +1,57 @@
-// ../../api/storage/userExercisesStorage.js
-import * as FileSystem from "expo-file-system/legacy";
+const API_BASE_URL = "http://10.0.2.2:3001"; // change this to your laptop IP and backend port
 
-const FILE_NAME = "userExercisesStorage.json";
+function normalizeEmail(value) {
+  return String(value || "").trim().toLowerCase();
+}
+
+function normalizeId(value) {
+  return String(value || "").trim();
+}
+
+function buildUrl(path, queryParams = {}) {
+  const cleanBase = String(API_BASE_URL || "").replace(/\/$/, "");
+  const cleanPath = path.startsWith("/") ? path : `/${path}`;
+
+  const params = new URLSearchParams();
+
+  Object.entries(queryParams).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && String(value).trim() !== "") {
+      params.append(key, String(value));
+    }
+  });
+
+  const query = params.toString();
+  return `${cleanBase}${cleanPath}${query ? `?${query}` : ""}`;
+}
+
+async function parseJsonResponse(response, fallbackMessage) {
+  let data = null;
+
+  try {
+    data = await response.json();
+  } catch {
+    data = null;
+  }
+
+  if (!response.ok) {
+    throw new Error(data?.error || fallbackMessage || "Request failed");
+  }
+
+  return data;
+}
 
 export function getUserExercisesFilePath() {
-  return `${FileSystem.documentDirectory ?? ""}${FILE_NAME}`;
+  return "backend/data/userExercises.json";
 }
 
 export async function readUserExercises() {
   try {
-    const path = getUserExercisesFilePath();
-    const info = await FileSystem.getInfoAsync(path);
-
-    if (!info.exists) {
-      return [];
-    }
-
-    const content = await FileSystem.readAsStringAsync(path);
-
-    if (!content || !content.trim()) {
-      return [];
-    }
-
-    const parsed = JSON.parse(content);
-    return Array.isArray(parsed) ? parsed : [];
+    const response = await fetch(buildUrl("/api/user-exercises"));
+    const data = await parseJsonResponse(
+      response,
+      "Failed to fetch user exercises"
+    );
+    return Array.isArray(data?.items) ? data.items : [];
   } catch (error) {
     console.warn("Failed to read user exercises:", error);
     return [];
@@ -32,14 +60,17 @@ export async function readUserExercises() {
 
 export async function writeUserExercises(data) {
   try {
-    const path = getUserExercisesFilePath();
     const safeData = Array.isArray(data) ? data : [];
 
-    await FileSystem.writeAsStringAsync(
-      path,
-      JSON.stringify(safeData, null, 2)
-    );
+    const response = await fetch(buildUrl("/api/user-exercises/replace-all"), {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ items: safeData }),
+    });
 
+    await parseJsonResponse(response, "Failed to replace user exercises");
     return true;
   } catch (error) {
     console.warn("Failed to write user exercises:", error);
@@ -48,21 +79,34 @@ export async function writeUserExercises(data) {
 }
 
 export async function appendUserExercise(exerciseItem) {
-  const existing = await readUserExercises();
-  const next = [...existing, exerciseItem];
-  await writeUserExercises(next);
-  return exerciseItem;
+  try {
+    const response = await fetch(buildUrl("/api/user-exercises"), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(exerciseItem || {}),
+    });
+
+    const data = await parseJsonResponse(
+      response,
+      "Failed to append user exercise"
+    );
+
+    return data?.item || null;
+  } catch (error) {
+    console.warn("Failed to append user exercise:", error);
+    throw error;
+  }
 }
 
 export async function clearUserExercises() {
   try {
-    const path = getUserExercisesFilePath();
-    const info = await FileSystem.getInfoAsync(path);
+    const response = await fetch(buildUrl("/api/user-exercises/clear"), {
+      method: "DELETE",
+    });
 
-    if (info.exists) {
-      await FileSystem.deleteAsync(path, { idempotent: true });
-    }
-
+    await parseJsonResponse(response, "Failed to clear user exercises");
     return true;
   } catch (error) {
     console.warn("Failed to clear user exercises:", error);
@@ -70,122 +114,42 @@ export async function clearUserExercises() {
   }
 }
 
-function startOfToday() {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
-function startOfLastNDays(daysBack) {
-  const d = startOfToday();
-  d.setDate(d.getDate() - daysBack);
-  return d;
-}
-
-function startOfLastMonth() {
-  const d = startOfToday();
-  d.setMonth(d.getMonth() - 1);
-  return d;
-}
-
-function getItemDate(item) {
-  const raw =
-    item?.createdAt ||
-    item?.updatedAt ||
-    item?.workout_datetime ||
-    item?.stoppedAtIso ||
-    item?.startedAtIso ||
-    null;
-
-  if (!raw) return null;
-
-  const d = new Date(raw);
-  if (Number.isNaN(d.getTime())) return null;
-
-  return d;
-}
-
-function normalizeEmail(value) {
-  return String(value || "").toLowerCase().trim();
-}
-
-function normalizeId(value) {
-  return String(value || "").trim();
-}
-
-function isSameDay(a, b) {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
-}
-
 export async function getUserExercisesForRange(userEmail, rangeKey = "7d") {
-  const all = await readUserExercises();
-  const normalizedEmail = normalizeEmail(userEmail);
+  try {
+    const response = await fetch(
+      buildUrl("/api/user-exercises/range", {
+        userEmail: normalizeEmail(userEmail),
+        rangeKey,
+      })
+    );
 
-  let fromDate;
+    const data = await parseJsonResponse(
+      response,
+      "Failed to fetch user exercises for range"
+    );
 
-  if (rangeKey === "today") {
-    fromDate = startOfToday();
-  } else if (rangeKey === "month") {
-    fromDate = startOfLastMonth();
-  } else {
-    fromDate = startOfLastNDays(6);
+    return Array.isArray(data?.items) ? data.items : [];
+  } catch (error) {
+    console.warn("Failed to get user exercises for range:", error);
+    return [];
   }
-
-  return all
-    .filter((item) => {
-      const itemEmail = normalizeEmail(item?.userEmail);
-
-      if (normalizedEmail && itemEmail !== normalizedEmail) {
-        return false;
-      }
-
-      const dt = getItemDate(item);
-      if (!dt) return false;
-
-      return dt >= fromDate;
-    })
-    .sort((a, b) => {
-      const da = getItemDate(a)?.getTime() || 0;
-      const db = getItemDate(b)?.getTime() || 0;
-      return db - da;
-    });
 }
 
 export async function getDailyWorkoutSession(userEmail, workoutId) {
   try {
-    const all = await readUserExercises();
-    const normalizedEmail = normalizeEmail(userEmail);
-    const normalizedWorkoutId = normalizeId(workoutId);
-    const today = new Date();
+    const response = await fetch(
+      buildUrl("/api/user-exercises/daily-session", {
+        userEmail: normalizeEmail(userEmail),
+        workoutId: normalizeId(workoutId),
+      })
+    );
 
-    const candidates = all.filter((item) => {
-      const itemEmail = normalizeEmail(item?.userEmail);
-      const itemWorkoutId = normalizeId(item?.workoutId);
-      const itemDate = getItemDate(item);
+    const data = await parseJsonResponse(
+      response,
+      "Failed to fetch daily workout session"
+    );
 
-      if (!itemDate) return false;
-      if (normalizedEmail && itemEmail !== normalizedEmail) return false;
-      if (normalizedWorkoutId && itemWorkoutId !== normalizedWorkoutId)
-        return false;
-
-      return isSameDay(itemDate, today);
-    });
-
-    if (!candidates.length) {
-      return null;
-    }
-
-    candidates.sort((a, b) => {
-      const da = getItemDate(a)?.getTime() || 0;
-      const db = getItemDate(b)?.getTime() || 0;
-      return db - da;
-    });
-
-    return candidates[0];
+    return data?.item || null;
   } catch (error) {
     console.warn("Failed to get daily workout session:", error);
     return null;
@@ -200,78 +164,26 @@ export async function saveWorkoutProgress({
   setStates,
 }) {
   try {
-    const all = await readUserExercises();
-
-    const normalizedEmail = normalizeEmail(userEmail);
-    const workoutId = normalizeId(workout?.id);
-    const nowIso = new Date().toISOString();
-
-    const safeSetStates = Array.isArray(setStates) ? setStates : [];
-    const doneStates = safeSetStates.filter((s) => s.status === "done");
-
-    const metrics = doneStates.map((s, idx) => ({
-      set_number: idx + 1,
-      reps: Number(s?.completedReps ?? s?.targetReps ?? 0),
-      duration_sec: Number(s?.elapsedSec ?? 0),
-      timer_sec: Number(s?.timerSec ?? 0),
-      started_at_iso: s?.startedAtIso || null,
-      stopped_at_iso: s?.stoppedAtIso || null,
-      status: s?.status || "done",
-    }));
-
-    const totalSetsPlanned = Number(
-      workout?.totalSetsPlanned || safeSetStates.length || 0
-    );
-    const completedSets = doneStates.length;
-    const sessionClosedForDay =
-      totalSetsPlanned > 0 && completedSets >= totalSetsPlanned;
-
-    const nextRecord = {
-      id: `workout_${Date.now()}`,
-      createdAt: nowIso,
-      updatedAt: nowIso,
-
-      userEmail: normalizedEmail,
-      userName: userName || "",
-
-      workoutId,
-      workout_name: workout?.name || "Exercise",
-      category: workout?.category || "Workout",
-      workout_type_id: workout?.workoutTypeId || "general",
-      workout_type_name: workout?.workoutTypeName || "General",
-      mode: workout?.mode || "timer",
-
-      workout_datetime: sessionStartIso || nowIso,
-      total_sets_planned: totalSetsPlanned,
-      completed_sets: completedSets,
-      total_reps_done: doneStates.reduce(
-        (sum, s) => sum + Number(s?.completedReps ?? s?.targetReps ?? 0),
-        0
-      ),
-      session_closed_for_day: sessionClosedForDay,
-      metrics,
-    };
-
-    const today = new Date();
-
-    const filtered = all.filter((item) => {
-      const itemEmail = normalizeEmail(item?.userEmail);
-      const itemWorkoutId = normalizeId(item?.workoutId);
-      const itemDate = getItemDate(item);
-
-      if (!itemDate) return true;
-
-      const sameUser = itemEmail === normalizedEmail;
-      const sameWorkout = itemWorkoutId === workoutId;
-      const sameDay = isSameDay(itemDate, today);
-
-      return !(sameUser && sameWorkout && sameDay);
+    const response = await fetch(buildUrl("/api/user-exercises/save-progress"), {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userEmail,
+        userName,
+        workout,
+        sessionStartIso,
+        setStates,
+      }),
     });
 
-    const nextAll = [...filtered, nextRecord];
-    await writeUserExercises(nextAll);
+    const data = await parseJsonResponse(
+      response,
+      "Failed to save workout progress"
+    );
 
-    return nextRecord;
+    return data?.item || null;
   } catch (error) {
     console.warn("Failed to save workout progress:", error);
     throw error;
@@ -280,26 +192,21 @@ export async function saveWorkoutProgress({
 
 export async function resetTodayWorkoutSession(userEmail, workoutId) {
   try {
-    const all = await readUserExercises();
-    const normalizedEmail = normalizeEmail(userEmail);
-    const normalizedWorkoutId = normalizeId(workoutId);
-    const today = new Date();
+    const response = await fetch(
+      buildUrl("/api/user-exercises/today-session", {
+        userEmail: normalizeEmail(userEmail),
+        workoutId: normalizeId(workoutId),
+      }),
+      {
+        method: "DELETE",
+      }
+    );
 
-    const filtered = all.filter((item) => {
-      const itemEmail = normalizeEmail(item?.userEmail);
-      const itemWorkoutId = normalizeId(item?.workoutId);
-      const itemDate = getItemDate(item);
+    await parseJsonResponse(
+      response,
+      "Failed to reset today's workout session"
+    );
 
-      if (!itemDate) return true;
-
-      const sameUser = itemEmail === normalizedEmail;
-      const sameWorkout = itemWorkoutId === normalizedWorkoutId;
-      const sameDay = isSameDay(itemDate, today);
-
-      return !(sameUser && sameWorkout && sameDay);
-    });
-
-    await writeUserExercises(filtered);
     return true;
   } catch (error) {
     console.warn("Failed to reset today's workout session:", error);
@@ -309,17 +216,15 @@ export async function resetTodayWorkoutSession(userEmail, workoutId) {
 
 export async function debugPrintUserExercisesJson() {
   try {
-    const path = getUserExercisesFilePath();
-    const info = await FileSystem.getInfoAsync(path);
+    const response = await fetch(buildUrl("/api/user-exercises"));
+    const data = await parseJsonResponse(
+      response,
+      "Failed to debug print user exercises JSON"
+    );
 
-    if (!info.exists) {
-      console.log(`${FILE_NAME} does not exist yet:`, path);
-      return;
-    }
-
-    const content = await FileSystem.readAsStringAsync(path);
-    console.log(`${FILE_NAME} path:`, path);
-    console.log(`${FILE_NAME} content:`, content);
+    console.log("API base URL:", API_BASE_URL);
+    console.log("userExercises.json saved at:", getUserExercisesFilePath());
+    console.log("userExercises.json content:", JSON.stringify(data?.items || [], null, 2));
   } catch (error) {
     console.warn("Failed to debug print user exercises JSON:", error);
   }

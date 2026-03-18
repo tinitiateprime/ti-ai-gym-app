@@ -2,7 +2,8 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
-const { createUser, verifyUser } = require("./src/services/authJsonservice");
+const { createUser, verifyUser } = require("./src/services/authJsonService");
+const userExercisesRoutes = require("./src/routes/userExercisesRoutes");
 
 const app = express();
 const PORT = Number(process.env.PORT || 3001);
@@ -44,7 +45,10 @@ app.post("/api/signup", async (req, res) => {
       message === "Invalid role selected" ? 400 :
       500;
 
-    return res.status(status).json({ ok: false, error: message });
+    return res.status(status).json({
+      ok: false,
+      error: message,
+    });
   }
 });
 
@@ -59,7 +63,7 @@ app.post("/api/login", async (req, res) => {
         error: "Email and password are required",
       });
     }
- 
+
     const user = await verifyUser(email, password);
 
     if (!user) {
@@ -76,12 +80,15 @@ app.post("/api/login", async (req, res) => {
     });
   } catch (err) {
     console.error("Login failed:", err);
-    return res.status(500).json({ ok: false, error: "Login failed" });
+    return res.status(500).json({
+      ok: false,
+      error: "Login failed",
+    });
   }
 });
+
+app.use("/api/user-exercises", userExercisesRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
-
-

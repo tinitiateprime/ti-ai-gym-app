@@ -17,6 +17,7 @@ export const WORKOUT_CATALOG = [
         videoKey: "pushups", // replace later with your actual video key
         timerOptions: [10, 15, 20, 30, 45, 60],
       },
+      
       {
         id: "dumbbells-shoulders-front",
         name: "Shoulders Front",

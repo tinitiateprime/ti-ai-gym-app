@@ -5,6 +5,7 @@ export const VIDEO_REGISTRY = {
   squats: require("../../assets/videos/squats.mp4"),
   running: require("../../assets/videos/running.mp4"),
   cycling: require("../../assets/videos/running.mp4"),
+  
 
   // keep a safe fallback
   default: require("../../assets/videos/pushup.mp4"),

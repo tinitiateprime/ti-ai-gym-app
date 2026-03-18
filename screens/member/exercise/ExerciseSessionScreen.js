@@ -26,7 +26,7 @@ function clamp(n, a, b) {
 }
 
 function makeGuid() {
-  return `sess_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+    `sess_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
 }
 
 function buildInitialSetStates(totalSets, defaultTimerSec, defaultReps) {
@@ -76,7 +76,6 @@ export default function ExerciseSessionScreen({ route }) {
   const workoutId = workout.id;
   const workoutName = workout.name || "Exercise";
   const category = workout.category || "Workout";
-  const workoutTypeId = workout.workoutTypeId || "general";
   const workoutTypeName = workout.workoutTypeName || "General";
   const mode = workout.mode || "timer";
 
@@ -106,7 +105,7 @@ export default function ExerciseSessionScreen({ route }) {
 
   const intervalRefs = useRef({});
   const timeoutRefs = useRef({});
-  const scrollRef = useRef(null);
+  const outerScrollRef = useRef(null);
   const rowYRef = useRef({});
 
   const [plannedSets, setPlannedSets] = useState(baseDefaultSets);
@@ -232,6 +231,7 @@ export default function ExerciseSessionScreen({ route }) {
   }, []);
 
   const doneCount = setStates.filter((s) => s.status === "done").length;
+
   const totalRepsDone = setStates
     .filter((s) => s.status === "done")
     .reduce((sum, s) => sum + Number(s.completedReps || 0), 0);
@@ -251,34 +251,34 @@ export default function ExerciseSessionScreen({ route }) {
   };
 
   const persistWorkout = async (nextStates) => {
-  try {
-    const startIso =
-      sessionStartRef.current?.toISOString() || new Date().toISOString();
+    try {
+      const startIso =
+        sessionStartRef.current?.toISOString() || new Date().toISOString();
 
-    const saved = await saveWorkoutProgress({
-      userEmail,
-      userName,
-      workout: {
-        ...workout,
-        totalSetsPlanned: plannedSets,
-      },
-      sessionStartIso: startIso,
-      setStates: nextStates,
-    });
+      const saved = await saveWorkoutProgress({
+        userEmail,
+        userName,
+        workout: {
+          ...workout,
+          totalSetsPlanned: plannedSets,
+        },
+        sessionStartIso: startIso,
+        setStates: nextStates,
+      });
 
-    console.log("Saved workout session =>", saved);
-    console.log("userExercises.json saved at =>", getUserExercisesFilePath());
-    await debugPrintUserExercisesJson();
+      console.log("Saved workout session =>", saved);
+      console.log("userExercises.json saved at =>", getUserExercisesFilePath());
+      await debugPrintUserExercisesJson();
 
-    setIsSaved(true);
-    setIsClosedForToday(!!saved?.session_closed_for_day);
-    return saved;
-  } catch (error) {
-    console.warn("Failed to save workout progress:", error);
-    setIsSaved(false);
-    return null;
-  }
-};
+      setIsSaved(true);
+      setIsClosedForToday(!!saved?.session_closed_for_day);
+      return saved;
+    } catch (error) {
+      console.warn("Failed to save workout progress:", error);
+      setIsSaved(false);
+      return null;
+    }
+  };
 
   const startOrResumeSet = (idx) => {
     if (isClosedForToday) return;
@@ -310,7 +310,6 @@ export default function ExerciseSessionScreen({ route }) {
     );
 
     setSetStates(nextStates);
-
     clearSetTimers(idx);
 
     intervalRefs.current[idx] = setInterval(() => {
@@ -388,8 +387,11 @@ export default function ExerciseSessionScreen({ route }) {
       setActiveIndex(nextIdx);
 
       const y = rowYRef.current[nextIdx];
-      if (typeof y === "number" && scrollRef.current?.scrollTo) {
-        scrollRef.current.scrollTo({ y: Math.max(0, y - 8), animated: true });
+      if (typeof y === "number" && outerScrollRef.current?.scrollTo) {
+        outerScrollRef.current.scrollTo({
+          y: Math.max(0, y - 220),
+          animated: true,
+        });
       }
     } else {
       setActiveIndex(null);
@@ -504,95 +506,106 @@ export default function ExerciseSessionScreen({ route }) {
   }
 
   return (
-    <SafeAreaView style={styles.safe}>
-      <View style={styles.screen}>
-        <View style={styles.titleRow}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.title}>{workoutName}</Text>
-            <Text style={styles.titleSub}>
-              {workoutTypeName} • {category} • {mode}
-            </Text>
-          </View>
-
-          <View style={styles.savedPill}>
-            <Ionicons
-              name={isClosedForToday ? "lock-closed" : isSaved ? "save" : "save-outline"}
-              size={16}
-              color={isClosedForToday ? "#22c55e" : isSaved ? "#38bdf8" : "#94a3b8"}
+  <SafeAreaView style={styles.safe}>
+    <View style={styles.screen}>
+      <View style={styles.fixedTopArea}>
+        <View style={styles.headerContent}>
+          <View style={styles.videoBox}>
+            <Video
+              source={videoSource}
+              style={styles.video}
+              resizeMode={ResizeMode.COVER}
+              useNativeControls
+              isLooping
+              shouldPlay={false}
             />
-            <Text
-              style={[
-                styles.savedText,
-                isClosedForToday && { color: "#22c55e" },
-                isSaved && !isClosedForToday && { color: "#38bdf8" },
-              ]}
-            >
-              {isClosedForToday
-                ? "Completed for today"
-                : isSaved
-                ? "Saved to JSON"
-                : "Not saved yet"}
-            </Text>
+          </View>
+
+          <View style={styles.titleRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.title}>{workoutName}</Text>
+              <Text style={styles.titleSub}>
+                {workoutTypeName} • {category} • {mode}
+              </Text>
+            </View>
+
+            <View style={styles.savedPill}>
+              <Ionicons
+                name={isClosedForToday ? "lock-closed" : isSaved ? "save" : "save-outline"}
+                size={16}
+                color={isClosedForToday ? "#22c55e" : isSaved ? "#38bdf8" : "#94a3b8"}
+              />
+              <Text
+                style={[
+                  styles.savedText,
+                  isClosedForToday && { color: "#22c55e" },
+                  isSaved && !isClosedForToday && { color: "#38bdf8" },
+                ]}
+              >
+                {isClosedForToday
+                  ? "Completed for today"
+                  : isSaved
+                  ? "Saved to JSON"
+                  : "Not saved yet"}
+              </Text>
+            </View>
+          </View>
+
+          {isClosedForToday ? (
+            <View style={styles.closedBanner}>
+              <Ionicons name="checkmark-circle" size={18} color="#22c55e" />
+              <Text style={styles.closedBannerText}>
+                Today’s workout is already completed. You can start again tomorrow.
+              </Text>
+            </View>
+          ) : null}
+
+          <View style={styles.metaRow}>
+            <View style={styles.metaPill}>
+              <Ionicons name="timer-outline" size={16} color="#38bdf8" />
+              <Text style={styles.metaText}>{sessionSeconds}s</Text>
+            </View>
+
+            <View style={styles.metaPill}>
+              <Ionicons name="checkmark-done-outline" size={16} color="#22c55e" />
+              <Text style={styles.metaText}>
+                {doneCount}/{plannedSets} sets
+              </Text>
+            </View>
+
+            <View style={styles.metaPill}>
+              <Ionicons name="repeat-outline" size={16} color="#f59e0b" />
+              <Text style={styles.metaText}>{totalRepsDone} reps done</Text>
+            </View>
+          </View>
+
+          <View style={styles.configBox}>
+            <Text style={styles.configLabel}>Select sets for today</Text>
+            <View style={styles.configPickerBox}>
+              <Picker
+                selectedValue={String(plannedSets)}
+                onValueChange={(val) => onChangePlannedSets(val)}
+                style={styles.picker}
+                dropdownIconColor="#e5e7eb"
+                enabled={doneCount === 0 && !isClosedForToday}
+                mode="dropdown"
+              >
+                {setOptions.map((n) => (
+                  <Picker.Item key={n} label={`${n} sets`} value={String(n)} />
+                ))}
+              </Picker>
+            </View>
           </View>
         </View>
+      </View>
 
-        <View style={styles.videoBox}>
-          <Video
-            source={videoSource}
-            style={styles.video}
-            resizeMode={ResizeMode.COVER}
-            useNativeControls
-            isLooping
-            shouldPlay={false}
-          />
-        </View>
-
-        {isClosedForToday ? (
-          <View style={styles.closedBanner}>
-            <Ionicons name="checkmark-circle" size={18} color="#22c55e" />
-            <Text style={styles.closedBannerText}>
-              Today’s workout is already completed. You can start again tomorrow.
-            </Text>
-          </View>
-        ) : null}
-
-        <View style={styles.metaRow}>
-          <View style={styles.metaPill}>
-            <Ionicons name="timer-outline" size={16} color="#38bdf8" />
-            <Text style={styles.metaText}>{sessionSeconds}s</Text>
-          </View>
-
-          <View style={styles.metaPill}>
-            <Ionicons name="checkmark-done-outline" size={16} color="#22c55e" />
-            <Text style={styles.metaText}>
-              {doneCount}/{plannedSets} sets
-            </Text>
-          </View>
-
-          <View style={styles.metaPill}>
-            <Ionicons name="repeat-outline" size={16} color="#f59e0b" />
-            <Text style={styles.metaText}>{totalRepsDone} reps done</Text>
-          </View>
-        </View>
-
-        <View style={styles.configBox}>
-          <Text style={styles.configLabel}>Select sets for today</Text>
-          <View style={styles.configPickerBox}>
-            <Picker
-              selectedValue={String(plannedSets)}
-              onValueChange={(val) => onChangePlannedSets(val)}
-              style={styles.picker}
-              dropdownIconColor="#e5e7eb"
-              enabled={doneCount === 0 && !isClosedForToday}
-              mode="dropdown"
-            >
-              {setOptions.map((n) => (
-                <Picker.Item key={n} label={`${n} sets`} value={String(n)} />
-              ))}
-            </Picker>
-          </View>
-        </View>
-
+      <ScrollView
+        ref={outerScrollRef}
+        style={styles.setsScroll}
+        contentContainerStyle={styles.setsScrollContent}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+      >
         <View style={styles.setsBox}>
           <View style={styles.setsHeader}>
             <Text style={styles.sectionTitle}>Sets</Text>
@@ -601,14 +614,7 @@ export default function ExerciseSessionScreen({ route }) {
             </Text>
           </View>
 
-          <ScrollView
-            ref={scrollRef}
-            style={styles.setsScroll}
-            contentContainerStyle={styles.setsScrollContent}
-            showsVerticalScrollIndicator
-            nestedScrollEnabled
-            keyboardShouldPersistTaps="handled"
-          >
+          <View style={styles.setsList}>
             {setStates.map((st, idx) => {
               const isActive = idx === activeIndex;
 
@@ -722,16 +728,38 @@ export default function ExerciseSessionScreen({ route }) {
                 </View>
               );
             })}
-          </ScrollView>
+          </View>
         </View>
-      </View>
-    </SafeAreaView>
-  );
+      </ScrollView>
+    </View>
+  </SafeAreaView>
+);
 }
+
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: "#020617" },
-  screen: { flex: 1, padding: 14 },
+  screen: { flex: 1 },
+
+  fixedTopArea: {
+    paddingHorizontal: 14,
+    paddingTop: 0,
+  },
+
+  headerContent: {
+    paddingBottom: 6,
+  },
+
+  setsScroll: {
+    flex: 1,
+  },
+
+  setsScrollContent: {
+    paddingHorizontal: 14,
+    paddingTop: 0,
+    paddingBottom: 30,
+  },
+
   centered: { alignItems: "center", justifyContent: "center" },
   loadingText: { color: "#cbd5e1", fontSize: 15, fontWeight: "700" },
 
@@ -739,11 +767,11 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: 10,
+    marginBottom: 4,
     gap: 10,
   },
   title: { color: "#f8fafc", fontSize: 22, fontWeight: "900" },
-  titleSub: { color: "#94a3b8", marginTop: 4, fontSize: 12, fontWeight: "700" },
+  titleSub: { color: "#94a3b8", marginTop: 2, fontSize: 10, fontWeight: "700" },
 
   savedPill: {
     flexDirection: "row",
@@ -758,13 +786,16 @@ const styles = StyleSheet.create({
   },
   savedText: { color: "#94a3b8", fontWeight: "800", fontSize: 12 },
 
-  videoBox: {
-    borderRadius: 16,
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#1e293b",
-    backgroundColor: "#0f172a",
-  },
+videoBox: {
+  marginTop: 0,
+  marginBottom: 8,
+  borderRadius: 16,
+  overflow: "hidden",
+  borderWidth: 1,
+  borderColor: "#1e293b",
+  backgroundColor: "#0f172a",
+},
+
   video: { width: "100%", height: 200, backgroundColor: "#0f172a" },
 
   closedBanner: {
@@ -831,8 +862,6 @@ const styles = StyleSheet.create({
   },
 
   setsBox: {
-    flex: 1,
-    minHeight: 0,
     marginTop: 6,
     borderRadius: 16,
     borderWidth: 1,
@@ -851,8 +880,11 @@ const styles = StyleSheet.create({
   sectionTitle: { color: "#e5e7eb", fontWeight: "900", fontSize: 14 },
   sectionSub: { color: "#94a3b8", marginTop: 4, fontSize: 12 },
 
-  setsScroll: { flex: 1, minHeight: 0, paddingHorizontal: 12, paddingTop: 10 },
-  setsScrollContent: { paddingBottom: 18 },
+  setsList: {
+    paddingHorizontal: 12,
+    paddingTop: 10,
+    paddingBottom: 18,
+  },
 
   setCardWrap: { marginBottom: 10 },
   setCard: {
